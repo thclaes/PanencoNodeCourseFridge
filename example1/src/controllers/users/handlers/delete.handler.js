@@ -1,15 +1,12 @@
 import { UserStore } from "./user.store"
 
 export const deleteUser = async (req, res, next) => {
-    // const id = req.params.id;
-
-    // const users = UserStore.delete(id);
-    // res.json(users);
-
-    const user = UserStore.get(req.params.id);
-    // Duplicated in multiple places for now. This will be refactored later.
+    const id = req.params.id;
+    const user = UserStore.get(id);
+    
     if (!user) {
         return next({ error: 'User not found' });
     }
+    UserStore.delete(id);
     res.status(204);
 }
