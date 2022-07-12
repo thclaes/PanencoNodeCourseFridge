@@ -19,5 +19,5 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     return next(validationErrors);
   }
   const user = UserStore.add(transformed);
-  res.json(plainToInstance(UserView, user));
+  res.status(201).json(plainToInstance(UserView, user));
 }

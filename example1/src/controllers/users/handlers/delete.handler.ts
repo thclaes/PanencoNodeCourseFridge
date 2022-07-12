@@ -9,5 +9,5 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
         return next({ error: 'User not found' });
     }
     UserStore.delete(id);
-    res.status(204);
+    res.status(204).end();
 }
