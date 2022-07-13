@@ -1,5 +1,14 @@
-import { BaseEntity, Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  BaseEntity,
+  Collection,
+  Entity,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { v4 } from "uuid";
+import { Product } from "./product.entity";
+import { Recipe } from "./recipe.entity";
 
 @Entity()
 export class User extends BaseEntity<User, "id"> {
@@ -14,4 +23,10 @@ export class User extends BaseEntity<User, "id"> {
 
   @Property()
   public password: string;
+
+  @OneToMany({ entity: () => Product, mappedBy: "owner" })
+  public products: Collection<Product>;
+
+  @OneToMany({ entity: () => Recipe, mappedBy: "owner" })
+  public recipes: Collection<Recipe>;
 }

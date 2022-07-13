@@ -25,7 +25,11 @@
   "scripts": {
     "start": "ts-node ./src/server.ts",
     "test": "mocha --require ts-node/register ./src/tests/**/*.test.ts",
-    "dev": "nodemon ./src/server.ts"
+    "dev": "nodemon ./src/server.ts",
+    "build": "tsc",
+    "build:clean": "yarn && yarn clean:build && yarn build",
+    "migration:squash": "yarn clean:build && yarn rimraf src/migrations && cross-env NODE_ENV=development yarn mikro-orm schema:drop --run && yarn clean:build && yarn migration:migrate && yarn build:clean",
+    "migration:migrate": "yarn mikro-orm migration:create && yarn mikro-orm migration:up"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
