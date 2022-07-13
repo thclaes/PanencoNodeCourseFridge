@@ -1,9 +1,17 @@
-import { NextFunction, Request, Response } from "express";
-import { UserStore } from "./user.store"
+import { RequestContext } from "@mikro-orm/core";
+import { User } from "../../../entities/user.entity";
 
-export const getList = async (req: Request, res: Response, next: NextFunction) => {
-    const search = req.query.search;
+export const getList = async (search?: string) : Promise<[User[], number]> => {
+    const em = RequestContext.getEntityManager();
 
-    const users = search ? UserStore.find(String(search)) : UserStore.find();
-    res.json(users);
+    const [users, length] : [User[], number] = await em.findAndCount(User, 
+        search?{
+            $or:[
+                { email: { $ilike: `%${search}%`} },
+                { name: { $ilike: `%${search}%`} }
+            ]
+        } : {}
+        );
+
+    return [users, length]
 }

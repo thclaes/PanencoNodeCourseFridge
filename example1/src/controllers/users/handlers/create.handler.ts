@@ -1,23 +1,12 @@
-import { plainToInstance } from "class-transformer";
-import { validate } from "class-validator";
-import { NextFunction, Request, Response } from "express";
+import { RequestContext } from "@mikro-orm/core";
 import { UserBody } from "../../../contracts/user.body";
-import { UserView } from "../../../contracts/user.view";
-import { UserStore } from "./user.store"
+import { User } from "../../../entities/user.entity";
 
-export const create = async (req: Request, res: Response, next: NextFunction) => {
-  // transform the plain object to an instance of our UserBody class using the plainToInstance function from the class-transformer package
-  const transformed = plainToInstance(UserBody, req.body);
-  // now validate the transformed object and retrieve possible errors
-  const validationErrors = await validate(transformed, {
-    skipMissingProperties: false,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  });
-  // if errors were found pass them to the express NextFunction and express will skip any remaining non-error handling middleware and output these errors as the response.
-  if (validationErrors.length) {
-    return next(validationErrors);
-  }
-  const user = UserStore.add(transformed);
-  res.status(201).json(plainToInstance(UserView, user));
-}
+export const create = async (body: UserBody): Promise<User> => {
+  const em = RequestContext.getEntityManager();
+
+  const user = em.create(User, body);
+  await em.persistAndFlush(user);
+
+  return user;
+};

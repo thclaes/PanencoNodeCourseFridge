@@ -1,139 +1,144 @@
 import { expect } from "chai";
 import { getList } from "../../controllers/users/handlers/getList.handler";
-import { User, UserStore } from "../../controllers/users/handlers/user.store";
-import { NextFunction, Request, Response } from "express";
-import { count } from "console";
 import { get } from "../../controllers/users/handlers/get.handler";
 import { create } from "../../controllers/users/handlers/create.handler";
-import { UserBody } from "../../contracts/user.body";
-import { UserView } from "../../contracts/user.view";
 import { update } from "../../controllers/users/handlers/update.handler";
 import { deleteUser } from "../../controllers/users/handlers/delete.handler";
+import {
+  Connection,
+  EntityManager,
+  IDatabaseDriver,
+  MikroORM,
+  RequestContext,
+} from "@mikro-orm/core";
+import { PostgreSqlDriver, SqlEntityManager } from "@mikro-orm/postgresql";
+import { App } from "../../app";
+import { User } from "../../entities/user.entity";
+import { v4 } from "uuid";
 
 const userFixtures: User[] = [
-    {
-      name: 'test1',
-      email: 'test-user+1@panenco.com',
-      id: 0,
-      password: 'password1',
-    },
-    {
-      name: 'test2',
-      email: 'test-user+2@panenco.com',
-      id: 1,
-      password: 'password2',
-    },
-  ];
+  {
+    name: "test1",
+    email: "test-user+1@panenco.com",
+    password: "password1",
+  } as User,
+  {
+    name: "test2",
+    email: "test-user+2@panenco.com",
+    password: "password2",
+  } as User,
+];
 
-describe('Handler tests', () => {
-    describe('User Tests', () => {
-      beforeEach(() => {
-        UserStore.users = [...userFixtures]; // Clone the array
+describe("Handler tests", () => {
+  describe("User Tests", () => {
+    let orm: MikroORM<PostgreSqlDriver>;
+    let em: SqlEntityManager<PostgreSqlDriver> &
+      EntityManager<IDatabaseDriver<Connection>>;
+    let users: User[];
+
+    before(async () => {
+      const app = new App();
+      await app.createConnection();
+
+      orm = app.orm;
+      em = orm.em.fork();
+    });
+
+    beforeEach(async () => {
+      await em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
+      await orm.getMigrator().up();
+
+      userFixtures.forEach((user) => {
+        const userDb = em.create(User, user);
+        em.persist(userDb);
       });
-      
-      it('should get users', () => {
-        let res: User[];
-        getList(
-            { query: {} } as Request,
-            { json: (val) => (res = val) } as Response,
-            null as NextFunction
-        );
+      await em.flush();
+      users = await em.find(User, {});
+      em.clear();
+    });
 
-        expect(res.some((x) => x.name === 'test1')).true;
+    it("should get users", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const [res, total] = await getList(null);
+
+        expect(total).equal(2);
+        expect(res.some((x) => x.name === "test1")).true;
       });
+    });
 
-      it('should search users', () => {
-        let res: User[];
-        getList(
-          { query: { search: 'test1' } as any } as Request,
-          { json: (val) => (res = val) } as Response,
-          null as NextFunction
-        );
-      
-        expect(res.some((x) => x.name === 'test1')).true;
+    it("should search users", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const [res, total] = await getList("test1");
+
+        expect(total).equal(1);
+        expect(res.some((x) => x.name === "test1")).true;
       });
+    });
 
-      it('should get user by id', () => {
-        let res: User;
+    it("should get user by id", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const res = await get(users[0].id);
 
-        get(
-            { params: { id: '1' } as any } as Request,
-            { json: (val) => (res = val) } as Response,
-            null as NextFunction
-        );
-
-        expect(res == userFixtures[1]).true;
+        expect(res.name == users[0].name).true;
+        expect(res.email == users[0].email).true;
       });
+    });
 
-      it('should fail when getting user by unknown id', () => {
-        let res: any;
-
-        get(
-            { params: { id: '55' } as any } as Request,
-            { status: (s) => ({ json: (val) => (res = val) }) } as Response,
-            null as NextFunction
-        );
-
-        expect(res.error).equal('user not found');
+    it("should fail when getting user by unknown id", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        try {
+          await get(v4());
+        } catch (error) {
+          expect(error.message).equal("User NotFound");
+          return;
+        }
+        expect(true, "should have thrown an error").false;
       });
+    });
 
-      it('should create user', async () => {
-        let res: User;
-        const newUser: UserBody = {
-          name: 'Jef',
-          email: 'jef@hotmail.com',
-          password: 'PasswordJef'
-        };
-
-        await create(
-          { body: newUser } as Request,
-          { status: (s) => ({ json: (val) => (res = val) }) } as Response,
-          null as NextFunction
-        );
-
-        expect(res.name).equals(newUser.name);
-        expect(res.email).equals(newUser.email);
-        expect(UserStore.users.filter((x) => (x.name == newUser.name)).length).equal(1);
-        expect(res.password).equals(undefined);
-      });
-
-      it('should update user', () => {
-        let res = {locals: {}} as Response;
+    it("should create user", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
         const body = {
-          name: 'Jos',
-          password: 'PasswordJos'
-        } as UserBody;
-        const id = 1;
+          email: "test-user+new@panenco.com",
+          name: "newUser",
+          password: "reallysecretstuff",
+        } as User;
+        const res = await create(body);
 
-        update(
-          { body, params: { id } as any } as Request,
-          res,
-          null as NextFunction
-        );
+        expect(res.name).equals(body.name);
+        expect(res.email).equals(body.email);
 
-        expect(res.locals.body.name).equals(body.name);
-        expect(res.locals.body.password).equals(body.password);
-        expect(UserStore.users.filter((x) => (x.name == body.name)).length).equal(1);
-        expect(UserStore.users.find((x) => (x.id == id)).email).equal('test-user+2@panenco.com');
+        const forkEm = orm.em.fork();
+        expect(await forkEm.count(User, { name: body.name })).equal(1);
       });
+    });
 
-      it('should delete user', async () => {
-        let status : number;
-        const id = 1;
+    it("should update user", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const body = {
+          email: "test-user+updated@panenco.com",
+        } as User;
+        const id = users[0].id;
+        const res = await update(id, body);
 
-        await deleteUser(
-          { params: { id } as any } as Request,
-          {
-            status: (s) => {
-              status = s;
-              return { end: () => null };
-            },
-          } as Response,
-          null as NextFunction
+        expect(res.email).equals(body.email);
+
+        expect(await em.count(User, { email: body.email })).equal(1);
+        expect((await em.findOne(User, { id })).email).equal(
+          "test-user+updated@panenco.com"
         );
+      });
+    });
 
-        expect(UserStore.users.filter((x) => (x.id == id)).length).equal(0);
-        expect(status).equals(204);
+    it("should delete user", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const id = users[1].id;
+
+        await deleteUser(id);
+
+        const forkEm = orm.em.fork();
+        expect(await forkEm.findOne(User, { id })).equal(null);
       });
     });
   });
+});

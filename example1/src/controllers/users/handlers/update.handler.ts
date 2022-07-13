@@ -1,13 +1,13 @@
-import { NextFunction, Request, Response } from "express";
-import { UserStore } from './user.store';
+import { RequestContext } from "@mikro-orm/core";
+import { UserBody } from "../../../contracts/user.body";
+import { User } from "../../../entities/user.entity";
 
-export const update = async (req: Request, res: Response, next: NextFunction) => {
-  const id = Number(req.params.id);
-  const user = UserStore.get(id);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  const updated = UserStore.update(id, req.body);
-  res.locals.body = updated; // Set the result on the locals object to pass it to the representation middleware.
-  next(); // call next so the representation middleware is actually fired
+export const update = async (idString: string, body: UserBody) => {
+  const em = RequestContext.getEntityManager();
+
+  const user = await em.findOneOrFail(User, { id: idString });
+
+  const res = user.assign(body);
+  await em.flush();
+  return res;
 };

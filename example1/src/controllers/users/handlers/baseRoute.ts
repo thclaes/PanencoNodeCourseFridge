@@ -1,8 +1,6 @@
-import { Router } from 'express';
+import { Router } from "express";
 
 export abstract class baseRoute {
-    router!: Router;
-    path!: String;
-
-    constructor(){}
+  router!: Router;
+  path!: String;
 }
