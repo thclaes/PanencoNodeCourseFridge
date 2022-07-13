@@ -1,6 +1,6 @@
-import { App } from './app';
+import { App } from "./app";
 
-(async () => {
+void (async () => {
   const app = new App();
   await app.createConnection();
   app.listen();

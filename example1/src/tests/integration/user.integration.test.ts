@@ -31,11 +31,6 @@ describe("Integration tests", () => {
           email: "test-user+1@panenco.com",
           password: "real secret stuff",
         };
-        const body1: UserBody = {
-          name: "test1",
-          email: "test-user+2@panenco.com",
-          password: "real secret stuff",
-        };
         const login: LoginBody = {
           email: "test-user+1@panenco.com",
           password: "real secret stuff",
@@ -62,7 +57,7 @@ describe("Integration tests", () => {
           .expect(200);
 
         const re = await request
-          .patch(`/api/users/` + createSuccessResponse.id)
+          .patch(`/api/users/${createSuccessResponse.id}`)
           .send(updateUser)
           .set("x-auth", auth.token)
           .expect(200);
@@ -73,7 +68,7 @@ describe("Integration tests", () => {
         expect(validUpdate.password).equals(undefined);
 
         const { body: getUpdatedUser } = await request
-          .get(`/api/users/` + createSuccessResponse.id)
+          .get(`/api/users/${createSuccessResponse.id}`)
           .set("x-auth", auth.token)
           .expect(200);
 
@@ -81,8 +76,8 @@ describe("Integration tests", () => {
         expect(getUpdatedUser.email).equals(updateUser.email);
         expect(getUpdatedUser.password).equals(undefined);
 
-        const { body: deleteUser } = await request
-          .delete(`/api/users/` + createSuccessResponse.id)
+        await request
+          .delete(`/api/users/${createSuccessResponse.id}`)
           .set("x-auth", auth.token)
           .expect(204);
 
