@@ -1,0 +1,30 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2019,
+    "sourceType": "module",
+    "project": "tsconfig.json"
+  },
+  "ignorePatterns": ["src/migrations/", "src/assets"],
+  "plugins": ["@typescript-eslint"],
+  "extends": ["plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "arrow-parens": "off",
+    "prefer-template": 1,
+    "no-console": 0,
+    "no-return-await": 1,
+    "no-var": "error",
+    "@typescript-eslint/no-var-requires": 0,
+    "no-empty-function": "off",
+    "no-else-return": "warn",
+    "no-unreachable": "warn",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-useless-catch": "off",
+    "no-prototype-builtins": "off",
+    "@typescript-eslint/no-floating-promises": "error"
+  }
+}
