@@ -25,8 +25,8 @@ export class User extends BaseEntity<User, "id"> {
   public password: string;
 
   @OneToMany({ entity: () => Product, mappedBy: "owner" })
-  public products: Collection<Product>;
+  public products: Collection<Product> = new Collection<Product>(this);
 
   @OneToMany({ entity: () => Recipe, mappedBy: "owner" })
-  public recipes: Collection<Recipe>;
+  public recipes: Collection<Recipe> = new Collection<Recipe>(this);
 }
