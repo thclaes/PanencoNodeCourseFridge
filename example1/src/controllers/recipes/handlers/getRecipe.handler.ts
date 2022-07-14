@@ -6,7 +6,7 @@ export const get = async (id: string): Promise<Recipe> => {
   const recipe = await em.findOneOrFail(
     Recipe,
     { id: id },
-    { populate: ["owner", "productRecipes"] }
+    { populate: ["owner", "productRecipes.product"] }
   );
 
   return recipe;

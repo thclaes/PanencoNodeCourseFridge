@@ -109,6 +109,21 @@ describe("Handler tests recipe", () => {
       });
     });
 
+    it("should contain recipes in get by id", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const prodRec: ProductRecipe = await em.create(ProductRecipe, {
+          recipe: recipes[1],
+          product: products[0],
+          amount: 1,
+        });
+        em.persist(prodRec);
+        await em.flush();
+
+        const res = await get(recipes[1].id);
+        expect(res.productRecipes[0].product.id).equals(products[0].id);
+      });
+    });
+
     it("should fail when getting recipe by unknown id", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
         try {
