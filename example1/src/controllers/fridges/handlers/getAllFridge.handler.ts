@@ -8,8 +8,8 @@ export const getAllProductsFromAllFridges = async (
   const em = RequestContext.getEntityManager();
   const fridges: Fridge[] = await em.find(
     Fridge,
-    search? { location: search }: {},
-    { populate: true }
+    search? { location: { $ilike: `%${search}%`} }: {},
+    { populate: ['products'] }
   );
   const allProducts: Product[] = [];
   fridges.forEach((fridge) => {

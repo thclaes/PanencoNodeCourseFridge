@@ -13,6 +13,8 @@ import { Product } from "../../entities/product.entity";
 import { getAllProductsFromFridge } from "../../controllers/fridges/handlers/getFridge.handler";
 import { getAllProductsFromAllFridges } from "../../controllers/fridges/handlers/getAllFridge.handler";
 import { v4 } from "uuid";
+import { createFridge } from "../../controllers/fridges/handlers/createFridge.handler";
+import { FridgeBody } from "../../contracts/fridge.body";
 
 const getFridgeFixture = (nb: number): Fridge => {
     return {
@@ -96,5 +98,17 @@ describe("Handler tests", () => {
           expect(res.some((x) => x.name === "testName0")).true;
         });
     });
+    it("should create fridge", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+          const newFridge = getFridgeFixture(10);
+          const res = await createFridge(newFridge as FridgeBody);
+  
+          expect(res.location).equals(newFridge.location);
+          expect(res.capacity).equals(newFridge.capacity);
+  
+          const forkEm = orm.em.fork();
+          expect(await forkEm.count(Fridge, { location: newFridge.location })).equal(1);
+      });
+  });
   });
 });
