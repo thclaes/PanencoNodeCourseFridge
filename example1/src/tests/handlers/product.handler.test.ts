@@ -56,7 +56,7 @@ describe("Handler tests", () => {
         await em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
         await orm.getMigrator().up();
 
-        em.persist(em.create(User, userFixture));
+        const userDb = em.create(User, userFixture);
 
         for (let i = 0; i < nbFridges; i++) {
             const fridgeDb = em.create(Fridge, getFridgeFixture(i));
@@ -64,9 +64,11 @@ describe("Handler tests", () => {
             for (let j = 0; j < nbProductsPerFridge; j++) {
                 const productDb = em.create(Product, getProductFixture(j));
                 productDb.fridge = fridgeDb;
+                productDb.owner = userDb;
                 em.persist(productDb);
             }
         }
+        em.persist(userDb);
         await em.flush();
     });
 
@@ -106,6 +108,20 @@ describe("Handler tests", () => {
             expect(await forkEm.count(Product, { name: newProduct.name })).equal(1);
       });
   });
+
+  it("should not create product with unknown FKs", async () => {
+    await RequestContext.createAsync(orm.em.fork(), async () => {
+          const newProduct = getProductFixture(10);
+          try {
+            const res = await createProduct({...newProduct, fridgeId: v4(), userId: v4()} as any);
+          }
+          catch (e) {
+            expect(e.message == "User NotFound" || e.message == "Fridge NotFound").true;
+          }
+          const forkEm = orm.em.fork();
+          expect(await forkEm.findOne(Product, { name: newProduct.name })).equal(null);
+    });
+});
 
 
       it("should delete product", async () => {
