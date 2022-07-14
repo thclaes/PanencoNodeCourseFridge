@@ -10,8 +10,8 @@ import { PostgreSqlDriver, SqlEntityManager } from "@mikro-orm/postgresql";
 import { App } from "../../app";
 import { Fridge } from "../../entities/fridge.entity";
 import { Product } from "../../entities/product.entity";
-import { getAllProductsFromFridge } from "../../controllers/fridges/handlers/getFridge.handler";
-import { getAllProductsFromAllFridges } from "../../controllers/fridges/handlers/getAllFridge.handler";
+import { getFridge } from "../../controllers/fridges/handlers/getFridge.handler";
+import { getAllFridges } from "../../controllers/fridges/handlers/getAllFridge.handler";
 import { v4 } from "uuid";
 import { createFridge } from "../../controllers/fridges/handlers/createFridge.handler";
 import { FridgeBody } from "../../contracts/fridge.body";
@@ -62,19 +62,19 @@ describe("Handler tests", () => {
         await em.flush();
     });
 
-    it("should get products from fridge", async () => {
+    it("should get (products from) fridge", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
         const fridges = await em.find(Fridge, {});
-        const [res, total] = await getAllProductsFromFridge(fridges[0].id);
-        expect(total).equal(nbProductsPerFridge);
-        expect(res.some((x) => x.name === "testName0")).true;
+        const fridge = await getFridge(fridges[0].id);
+        expect(fridge.products.length).equal(nbProductsPerFridge);
+        expect(fridge.location).equal("testLocation0");
       });
     });
 
-    it("should fail when getting products by unknown fridge id", async () => {
+    it("should fail when getting (products by) unknown fridge id", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
         try {
-          await getAllProductsFromFridge(v4());
+          await getFridge(v4());
         } catch (error) {
           expect(error.message).equal("Fridge NotFound");
           return;
@@ -83,22 +83,24 @@ describe("Handler tests", () => {
       });
     });
 
-    it("should get products from all fridges", async () => {
+    it("should get (products from) all fridges", async () => {
         await RequestContext.createAsync(orm.em.fork(), async () => {
-          const [res, total] = await getAllProductsFromAllFridges();
-          expect(total).equal(nbFridges * nbProductsPerFridge);
-          expect(res.some((x) => x.name === "testName0")).true;
+          const [res, total] = await getAllFridges();
+          expect(total).equal(nbFridges);
+          expect(res[0].products.length).equal(nbProductsPerFridge);
+          expect(res.some((x) => x.location === "testLocation0")).true;
         });
     });
 
-    it("should get products from all fridges in location", async () => {
+    it("should get (products from) all fridges in location", async () => {
         await RequestContext.createAsync(orm.em.fork(), async () => {
-          const [res, total] = await getAllProductsFromAllFridges("testLocation0");
-          expect(total).equal(nbProductsPerFridge);
-          expect(res.some((x) => x.name === "testName0")).true;
+          const [res, total] = await getAllFridges("testLocation0");
+          expect(total).equal(1);
+          expect(res[0].products.length).equal(nbProductsPerFridge);
+          expect(res.some((x) => x.location === "testLocation0")).true;
         });
     });
-    it("should create fridge", async () => {
+    it("should create one empty fridge", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
           const newFridge = getFridgeFixture(10);
           const res = await createFridge(newFridge as FridgeBody);
@@ -108,6 +110,9 @@ describe("Handler tests", () => {
   
           const forkEm = orm.em.fork();
           expect(await forkEm.count(Fridge, { location: newFridge.location })).equal(1);
+
+          const fridge = await getFridge(res.id);
+          expect(fridge.products.length).equal(0);
       });
   });
   });

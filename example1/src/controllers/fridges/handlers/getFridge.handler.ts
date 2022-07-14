@@ -2,10 +2,7 @@ import { RequestContext } from "@mikro-orm/core";
 import { Fridge } from "../../../entities/fridge.entity";
 import { Product } from "../../../entities/product.entity";
 
-export const getAllProductsFromFridge = async (id: string): Promise<[Product[], number]> => {
+export const getFridge = async (id: string): Promise<Fridge> => {
     const em = RequestContext.getEntityManager();
-    const fridge: Fridge = await em.findOneOrFail(Fridge,{ id }, { populate: ['products'] });
-    const allProducts: Product[] = [];
-    allProducts.push(...Array.from(fridge.products));
-    return [allProducts, allProducts.length];
+    return await em.findOneOrFail(Fridge,{ id }, { populate: ['products'] });
 };
