@@ -24,13 +24,13 @@ export class Product extends BaseEntity<Product, "id"> {
   public name: string;
 
   @Property({ nullable: true })
-  public size: number;
+  public size?: number;
 
-  @ManyToOne({ entity: () => Fridge })
-  public fridge: Fridge;
+  @ManyToOne({ entity: () => Fridge, nullable: true })
+  public fridge?: Fridge;
 
-  @ManyToOne({ entity: () => User })
-  public owner: User;
+  @ManyToOne({ entity: () => User, nullable: true })
+  public owner?: User;
 
   @OneToMany({ entity: () => ProductRecipe, mappedBy: "product" })
   public productRecipes: Collection<ProductRecipe>;

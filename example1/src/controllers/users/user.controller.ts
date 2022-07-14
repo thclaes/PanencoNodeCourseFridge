@@ -1,8 +1,7 @@
-import { getList } from "./handlers/getList.handler";
-import { create } from "./handlers/create.handler";
-import { get } from "./handlers/get.handler";
-import { update } from "./handlers/update.handler";
-import { deleteUser } from "./handlers/delete.handler";
+import { getList } from "./handlers/getListUser.handler";
+import { create } from "./handlers/createUser.handler";
+import { update } from "./handlers/updateUser.handler";
+import { deleteUser } from "./handlers/deleteUser.handler";
 import { UserBody } from "../../contracts/user.body";
 import { UserView } from "../../contracts/user.view";
 import {
@@ -24,6 +23,7 @@ import {
 import { SearchQuery } from "../../contracts/search.query";
 import "express-async-errors";
 import { OpenAPI } from "routing-controllers-openapi";
+import { get } from "./handlers/getUser.handler";
 
 @JsonController("/users")
 export class UserController {
