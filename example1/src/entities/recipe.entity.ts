@@ -25,8 +25,8 @@ export class Recipe extends BaseEntity<Recipe, "id"> {
   @Property({ nullable: true })
   public size: number;
 
-  @ManyToOne({ entity: () => User })
-  public owner: User;
+  @ManyToOne({ entity: () => User, nullable: true })
+  public owner?: User;
 
   @OneToMany({ entity: () => ProductRecipe, mappedBy: "recipe" })
   public productRecipes: Collection<ProductRecipe>;
