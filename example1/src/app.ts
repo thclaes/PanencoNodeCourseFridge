@@ -14,6 +14,7 @@ import swaggerUi from "swagger-ui-express";
 import { MikroORM, RequestContext } from "@mikro-orm/core";
 import ormConfig from "./orm.config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { FridgeController } from "./controllers/fridges/fridge.controller";
 
 export class App {
   public orm: MikroORM<PostgreSqlDriver>;
@@ -22,7 +23,7 @@ export class App {
     // Init server
     this.host = express();
     this.host.use(express.json());
-    this.initializeControllers([AuthController, UserController]);
+    this.initializeControllers([AuthController, UserController, FridgeController]);
     this.initializeSwagger();
 
     this.host.get("/", (req: Request, res: Response) => {

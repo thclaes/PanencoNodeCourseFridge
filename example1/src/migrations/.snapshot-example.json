@@ -112,7 +112,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
         }
       },
@@ -141,6 +141,7 @@
             "id"
           ],
           "referencedTableName": "public.user",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }
@@ -235,7 +236,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
         },
         "owner_id": {
@@ -244,7 +245,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
         }
       },
@@ -273,6 +274,7 @@
             "id"
           ],
           "referencedTableName": "public.fridge",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         },
         "product_owner_id_foreign": {
@@ -285,6 +287,7 @@
             "id"
           ],
           "referencedTableName": "public.user",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }
