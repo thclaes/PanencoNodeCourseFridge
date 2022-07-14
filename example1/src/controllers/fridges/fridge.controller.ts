@@ -12,14 +12,14 @@ import { ProductBody } from "../../contracts/product.body";
 @JsonController("/fridge")
 export class FridgeController {
   @Get()
-  @Authorized()
+  //@Authorized()
   @ListRepresenter(ProductBody)
   async getAllProductsFromAllFridges(@Query() query: SearchQuery) {
     return getAllProductsFromAllFridges(query.search); //query.search == location
   }
 
   @Get("/:id")
-  @Authorized()
+  //@Authorized()
   @ListRepresenter(ProductBody)
   async getAllProductsFromFridge(@Param("id") id: string) {
     return getAllProductsFromFridge(id);
