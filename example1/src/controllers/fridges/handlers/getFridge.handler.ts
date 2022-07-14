@@ -5,7 +5,7 @@ import { Product } from "../../../entities/product.entity";
 export const getAllProductsFromFridge = async (id: string): Promise<[Product[], number]> => {
     const em = RequestContext.getEntityManager();
     const fridge: Fridge = await em.findOneOrFail(Fridge,{ id }, { populate: true });
-    let allProducts: Product[];
+    const allProducts: Product[] = [];
     allProducts.push(...Array.from(fridge.products));
     return [allProducts, allProducts.length];
 };
