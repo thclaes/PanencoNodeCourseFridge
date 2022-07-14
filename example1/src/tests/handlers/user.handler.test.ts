@@ -1,9 +1,9 @@
 import { expect } from "chai";
-import { getList } from "../../controllers/users/handlers/getList.handler";
-import { get } from "../../controllers/users/handlers/get.handler";
-import { create } from "../../controllers/users/handlers/create.handler";
-import { update } from "../../controllers/users/handlers/update.handler";
-import { deleteUser } from "../../controllers/users/handlers/delete.handler";
+import { getList } from "../../controllers/users/handlers/getListUser.handler";
+import { get } from "../../controllers/users/handlers/getUser.handler";
+import { create } from "../../controllers/users/handlers/createUser.handler";
+import { update } from "../../controllers/users/handlers/updateUser.handler";
+import { deleteUser } from "../../controllers/users/handlers/deleteUser.handler";
 import {
   Connection,
   EntityManager,
