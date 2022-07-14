@@ -7,9 +7,10 @@ import { User } from "../../../entities/user.entity";
 export const createProduct = async (body: ProductBody): Promise<Product> => {
   const em = RequestContext.getEntityManager();
 
-  const product = em.create(Product, body);
-  product.owner = em.getReference(User, body.userId);
-  product.fridge = em.getReference(Fridge, body.fridgeId);
+  const {userId, fridgeId, ...newBody} = body;
+  const product = em.create(Product, newBody);
+  product.owner = em.getReference(User, userId);
+  product.fridge = em.getReference(Fridge, fridgeId);
 
   await em.persistAndFlush(product);
 
