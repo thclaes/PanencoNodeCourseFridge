@@ -7,8 +7,8 @@ import { User } from "../../../entities/user.entity";
 export const createProduct = async (body: ProductBody): Promise<Product> => {
   const em = RequestContext.getEntityManager();
 
-  const {userId, fridgeId, ...newBody} = body;
-  const product = em.create(Product, newBody);
+  const {userId, fridgeId, ...bodyWithoutFK} = body;
+  const product = em.create(Product, bodyWithoutFK);
   product.owner = em.getReference(User, userId);
   product.fridge = em.getReference(Fridge, fridgeId);
 

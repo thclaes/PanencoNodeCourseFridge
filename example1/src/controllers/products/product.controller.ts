@@ -1,12 +1,9 @@
 import { Authorized, Delete, Get, JsonController, Param, Post } from "routing-controllers";
 import {
     Body,
-  ListRepresenter,
-  Query,
   Representer,
   StatusCode,
 } from "@panenco/papi";
-import { SearchQuery } from "../../contracts/search.query";
 import "express-async-errors";
 import { ProductBody } from "../../contracts/product/product.body";
 import { getProduct } from "./handlers/getProduct.handler";

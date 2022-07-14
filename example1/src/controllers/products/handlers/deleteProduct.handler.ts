@@ -1,12 +1,11 @@
 import { RequestContext } from "@mikro-orm/core";
 import { Product } from "../../../entities/product.entity";
-import { User } from "../../../entities/user.entity";
 
-export const deleteProduct = async (idString: string) => {
+export const deleteProduct = async (id: string) => {
   const em = RequestContext.getEntityManager();
   const product = await em.findOneOrFail(
     Product,
-    { id: idString },
+    { id },
     { populate: ["fridge", "owner", "productRecipes"] }
   );
 
