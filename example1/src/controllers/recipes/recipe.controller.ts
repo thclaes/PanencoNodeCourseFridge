@@ -20,6 +20,7 @@ import { OpenAPI } from "routing-controllers-openapi";
 import { RecipeView } from "../../contracts/recipe/recipe.view";
 import { RecipeBody } from "../../contracts/recipe/recipe.body";
 import { create } from "./handlers/createRecipe.handler";
+import { get } from "./handlers/getRecipe.handler";
 
 @JsonController("/recipes")
 export class RecipeController {
@@ -30,19 +31,19 @@ export class RecipeController {
     return create(body);
   }
 
-  //   @Get()
-  //   @Authorized()
-  //   @ListRepresenter(UserView)
-  //   async getList(@Query() query: SearchQuery) {
-  //     return getList(query.search);
-  //   }
+  // @Get()
+  // @Authorized()
+  // @ListRepresenter(UserView)
+  // async getList(@Query() query: SearchQuery) {
+  //   return getList(query.search);
+  // }
 
-  //   @Get("/:id")
-  //   @Authorized()
-  //   @Representer(UserView)
-  //   async get(@Param("id") id: string) {
-  //     return get(id);
-  //   }
+  @Get("/:id")
+  // @Authorized()
+  @Representer(RecipeView)
+  async get(@Param("id") id: string) {
+    return get(id);
+  }
 
   //   @Patch("/:id")
   //   @Authorized()
