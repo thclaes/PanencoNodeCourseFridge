@@ -19,8 +19,4 @@ export class ProductBody {
   @Expose()
   @IsString()
   public fridgeId: string;
-
-  @Expose()
-  @IsString()
-  public userId: string;
 }

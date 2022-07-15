@@ -1,4 +1,4 @@
-import { Authorized, Delete, Get, JsonController, Param, Post } from "routing-controllers";
+import { Authorized, Delete, Get, JsonController, Param, Post, Req } from "routing-controllers";
 import {
     Body,
   Representer,
@@ -10,6 +10,7 @@ import { getProduct } from "./handlers/getProduct.handler";
 import { ProductView } from "../../contracts/product/product.view";
 import { deleteProduct } from "./handlers/deleteProduct.handler";
 import { createProduct } from "./handlers/createProduct.handler";
+import { Request } from "express";
 
 @JsonController("/product")
 export class ProductController {
@@ -23,7 +24,8 @@ export class ProductController {
   @Post()
   @Authorized()
   @Representer(ProductView, StatusCode.created)
-  async createProduct(@Body() body: ProductBody) {
+  async createProduct(@Body() body: ProductBody, @Req() req: Request) {
+    const {token: {id}} = req
     return createProduct(body);
   }
 
