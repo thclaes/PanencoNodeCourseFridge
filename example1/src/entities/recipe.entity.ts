@@ -22,9 +22,6 @@ export class Recipe extends BaseEntity<Recipe, "id"> {
   @Property({ nullable: true })
   public description: string;
 
-  @Property({ nullable: true })
-  public size: number;
-
   @ManyToOne({ entity: () => User, nullable: true })
   public owner?: User;
 

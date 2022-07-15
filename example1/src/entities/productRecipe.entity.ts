@@ -15,7 +15,7 @@ export class ProductRecipe extends BaseEntity<ProductRecipe, "id"> {
   public id: string = v4();
 
   @Property()
-  public type: number;
+  public amount: number;
 
   @ManyToOne({ entity: () => Product })
   public product: Product;
