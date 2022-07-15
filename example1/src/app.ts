@@ -23,6 +23,9 @@ export class App {
     // Init server
     this.host = express();
     this.host.use(express.json());
+    this.host.use((req, __, next: NextFunction) => {
+      RequestContext.create(this.orm.em, next);
+    });
     this.initializeControllers([
       AuthController,
       UserController,
@@ -35,9 +38,6 @@ export class App {
     });
 
     this.host.use(errorMiddleware);
-    this.host.use((req, __, next: NextFunction) => {
-      RequestContext.create(this.orm.em, next);
-    });
   }
 
   listen() {

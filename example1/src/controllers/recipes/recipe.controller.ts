@@ -38,12 +38,12 @@ export class RecipeController {
   //   return getList(query.search);
   // }
 
-  @Get("/:id")
-  // @Authorized()
-  @Representer(RecipeView)
-  async get(@Param("id") id: string) {
-    return get(id);
-  }
+  //   @Get("/:id")
+  //   // @Authorized()
+  //   @Representer(RecipeView)
+  //   async get(@Param("id") id: string) {
+  //     return get(id);
+  //   }
 
   //   @Patch("/:id")
   //   @Authorized()

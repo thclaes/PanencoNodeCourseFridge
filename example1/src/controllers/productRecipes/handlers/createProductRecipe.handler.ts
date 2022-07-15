@@ -17,27 +17,40 @@ export const createProductRecipe = async (
       let product: Product;
 
       try {
-        product = await em.findOneOrFail(Product, {
-          id: productAmount.product_id,
-        });
+        product = await em.findOneOrFail(
+          Product,
+          {
+            id: productAmount.product_id,
+          },
+          {
+            populate: ["owner"],
+          }
+        );
+        if (product.owner) {
+          throw new Error(
+            "The given product has an owner, and thus is not a type!"
+          );
+        }
       } catch (e) {
         unknownProducts.push(productAmount.product_id);
       }
 
-      try {
-        const prRemove = await em.findOneOrFail(ProductRecipe, {
-          product: product,
-          recipe: recipe,
-        });
-        prRemove.amount = productAmount.amount;
-      } catch (e) {
-        const productRecipe = em.create(ProductRecipe, {
-          product: product,
-          recipe: recipe,
-          amount: productAmount.amount,
-        });
+      if (product && !product.owner) {
+        try {
+          const prRemove = await em.findOneOrFail(ProductRecipe, {
+            product: product,
+            recipe: recipe,
+          });
+          prRemove.amount = productAmount.amount;
+        } catch (e) {
+          const productRecipe = em.create(ProductRecipe, {
+            product: product,
+            recipe: recipe,
+            amount: productAmount.amount,
+          });
 
-        em.persist(productRecipe);
+          em.persist(productRecipe);
+        }
       }
     })
   );

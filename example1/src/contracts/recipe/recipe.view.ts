@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from "class-transformer";
 import { IsString } from "class-validator";
-import { User } from "../../entities/user.entity";
 import { ProductAmountView } from "./productAmount.view";
+import { UserView } from "../user.view";
 
 @Exclude()
 export class RecipeView {
@@ -14,8 +14,8 @@ export class RecipeView {
   public description: string;
 
   @Expose()
-  @Type(() => User)
-  public owner: User;
+  @Type(() => UserView)
+  public owner?: UserView;
 
   @Expose()
   @Type(() => ProductAmountView)

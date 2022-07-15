@@ -181,6 +181,29 @@ describe("Handler tests recipe", () => {
       });
     });
 
+    // To write when user-part is done
+    // it("should not create recipe if product has owner", async () => {
+    //   await RequestContext.createAsync(orm.em.fork(), async () => {
+    //     const body = {
+    //       name: "test recept",
+    //       description: "Dit is een test recept",
+    //       productAmount: [
+    //         {
+    //           product_id: v4(),
+    //           amount: 10,
+    //         } as ProductAmount,
+    //       ],
+    //     } as RecipeBody;
+    //     try {
+    //       await create(body);
+    //     } catch (error) {
+    //       expect(error.message).contain("Following products do not exist");
+    //       return;
+    //     }
+    //     expect(true, "should have thrown an error").false;
+    //   });
+    // });
+
     it("should update recipe", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
         const body1 = {
