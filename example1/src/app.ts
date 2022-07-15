@@ -15,6 +15,7 @@ import { MikroORM, RequestContext } from "@mikro-orm/core";
 import ormConfig from "./orm.config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { FridgeController } from "./controllers/fridges/fridge.controller";
+import { ProductController } from "./controllers/products/product.controller";
 
 export class App {
   public orm: MikroORM<PostgreSqlDriver>;
@@ -23,7 +24,10 @@ export class App {
     // Init server
     this.host = express();
     this.host.use(express.json());
-    this.initializeControllers([AuthController, UserController, FridgeController]);
+    this.host.use((req, __, next: NextFunction) => {
+      RequestContext.create(this.orm.em, next);
+    });
+    this.initializeControllers([AuthController, UserController, FridgeController, ProductController]);
     this.initializeSwagger();
 
     this.host.get("/", (req: Request, res: Response) => {
@@ -31,9 +35,7 @@ export class App {
     });
 
     this.host.use(errorMiddleware);
-    this.host.use((req, __, next: NextFunction) => {
-      RequestContext.create(this.orm.em, next);
-    });
+
   }
 
   listen() {

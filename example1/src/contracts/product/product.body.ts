@@ -6,8 +6,8 @@ import { TypeEnum } from "../../Enums/typeEnum";
 export class ProductBody {
   @Expose()
   @IsString()
-  @Transform(({ type }) => TypeEnum[type])
-  public type: TypeEnum;
+  //@Transform(({ type }) => TypeEnum[type])
+  public type: string;
 
   @Expose()
   @IsString()
