@@ -16,6 +16,7 @@ import ormConfig from "./orm.config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { RecipeController } from "./controllers/recipes/recipe.controller";
 import { FridgeController } from "./controllers/fridges/fridge.controller";
+import { ProductController } from "./controllers/products/product.controller";
 
 export class App {
   public orm: MikroORM<PostgreSqlDriver>;
@@ -40,6 +41,7 @@ export class App {
     });
 
     this.host.use(errorMiddleware);
+
   }
 
   listen() {
