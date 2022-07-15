@@ -3,20 +3,15 @@ import { RecipeBody } from "../../../contracts/recipe/recipe.body";
 import { Recipe } from "../../../entities/recipe.entity";
 import { createProductRecipe } from "../../productRecipes/handlers/createProductRecipe.handler";
 
-export const create = async (body: RecipeBody): Promise<Recipe> => {
+export const update = async (id: string, body: RecipeBody): Promise<Recipe> => {
   const em = RequestContext.getEntityManager();
 
-  // setOwner?
-  const createEntity: Recipe = {
-    name: body.name,
-    description: body.description,
-  } as Recipe;
+  const recipe = await em.findOneOrFail(Recipe, { id: id });
 
-  const recipe = em.create(Recipe, createEntity);
-  await em.persist(recipe);
+  const res = recipe.assign(body);
 
   //throws error or executes
   await createProductRecipe(recipe, body.productAmounts);
 
-  return recipe;
+  return res;
 };

@@ -14,6 +14,7 @@ import swaggerUi from "swagger-ui-express";
 import { MikroORM, RequestContext } from "@mikro-orm/core";
 import ormConfig from "./orm.config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { RecipeController } from "./controllers/recipes/recipe.controller";
 import { FridgeController } from "./controllers/fridges/fridge.controller";
 import { ProductController } from "./controllers/products/product.controller";
 
@@ -27,7 +28,12 @@ export class App {
     this.host.use((req, __, next: NextFunction) => {
       RequestContext.create(this.orm.em, next);
     });
-    this.initializeControllers([AuthController, UserController, FridgeController, ProductController]);
+    this.initializeControllers([
+      AuthController,
+      UserController,
+      FridgeController,
+      RecipeController,
+    ]);
     this.initializeSwagger();
 
     this.host.get("/", (req: Request, res: Response) => {

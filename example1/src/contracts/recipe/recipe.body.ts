@@ -1,12 +1,10 @@
-import { Collection } from "@mikro-orm/core";
 import { Exclude, Expose, Type } from "class-transformer";
 import { IsString } from "class-validator";
-import { ProductRecipe } from "../../entities/productRecipe.entity";
+import { User } from "../../entities/user.entity";
+import { ProductAmount } from "./productAmount";
 
-// For safety we'll exclude everything from being transformed by placing a @Exclude() decorator on the class declaration
 @Exclude()
 export class RecipeBody {
-  // We can expose the properties we want included one by one
   @Expose()
   @IsString()
   public name: string;
@@ -16,10 +14,10 @@ export class RecipeBody {
   public description: string;
 
   @Expose()
-  @IsString()
-  public size: string;
+  @Type(() => User)
+  public owner: User;
 
   @Expose()
-  @Type(() => ProductRecipe)
-  public productRecipes: Collection<ProductRecipe>;
+  @Type(() => ProductAmount)
+  public productAmounts: ProductAmount[];
 }

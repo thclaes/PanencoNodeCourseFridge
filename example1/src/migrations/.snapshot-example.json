@@ -97,15 +97,6 @@
           "nullable": true,
           "mappedType": "string"
         },
-        "size": {
-          "name": "size",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "integer"
-        },
         "owner_id": {
           "name": "owner_id",
           "type": "uuid",
@@ -303,8 +294,8 @@
           "nullable": false,
           "mappedType": "uuid"
         },
-        "type": {
-          "name": "type",
+        "amount": {
+          "name": "amount",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
