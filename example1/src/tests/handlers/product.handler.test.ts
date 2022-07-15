@@ -109,6 +109,25 @@ describe("Handler tests", () => {
       });
   });
 
+  it("should not create product when no space in fridge", async () => {
+    await RequestContext.createAsync(orm.em.fork(), async () => {
+      const fridges = await em.find(Fridge, {});
+      const users = await em.find(User, {});
+
+          const newProduct = getProductFixture(10);
+          newProduct.size = 1000;
+          try {
+            const res = await createProduct({...newProduct, fridgeId: fridges[0].id, userId: users[0].id} as any);
+          }
+          catch (e) {
+            expect(e.message).equal("fridge full");
+          }
+  
+          const forkEm = orm.em.fork();
+          expect(await forkEm.count(Product, { name: newProduct.name })).equal(0);
+    });
+});
+
   it("should not create product with unknown FKs", async () => {
     await RequestContext.createAsync(orm.em.fork(), async () => {
           const newProduct = getProductFixture(10);
