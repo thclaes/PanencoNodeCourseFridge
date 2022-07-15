@@ -20,6 +20,7 @@ import { deleteRecipe } from "../../controllers/recipes/handlers/deleteRecipe.ha
 import { Product } from "../../entities/product.entity";
 import { ProductAmount } from "../../contracts/recipe/productAmount";
 import { ProductRecipe } from "../../entities/productRecipe.entity";
+import { getMissingIngredients } from "../../controllers/recipes/handlers/getMissing.handler";
 
 const recipeFixtures: Recipe[] = [
   {
@@ -51,7 +52,7 @@ const productFixtures: Product[] = [
     type: "drink",
     name: "test1",
     size: 10,
-  } as Product
+  } as Product,
 ];
 
 describe("Handler tests recipe", () => {
@@ -263,21 +264,58 @@ describe("Handler tests recipe", () => {
       });
     });
 
-    // it("should return missing products", async () => {
-    //   await RequestContext.createAsync(orm.em.fork(), async () => {
-    //     em.create(Product, [
-    //       {
-    //         type: "food",
-    //         name: "appel",
-    //         size: 5,
-    //       } as Product,
-    //       {
-    //         type: "food",
-    //         name: "test",
-    //         size: 5,
-    //       } as Product,
-    //     ])
-    //   });
-    // });
+    it("should return missing products", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const user = await em.create(User, {
+          name: "testuser",
+          email: "testuser@mail.net",
+          password: "allowedpassword",
+        });
+        em.persist(user);
+
+        const productType = em.create(Product, {
+          type: "food",
+          name: "appel",
+          size: 5,
+        } as Product);
+        em.persist(productType);
+
+        const product = em.create(Product, {
+          type: "food",
+          name: "test",
+          size: 5,
+          owner: user,
+        });
+        em.persist(product);
+        await em.flush();
+
+        const recipe = await em.findOne(Recipe, { name: "Spaghetti" });
+
+        const productRec1 = em.create(ProductRecipe, {
+          product: products[0],
+          recipe: recipe,
+          amount: 5,
+        });
+
+        const productRec2 = await em.create(ProductRecipe, {
+          product: products[1],
+          recipe: recipe,
+          amount: 5,
+        });
+
+        const productRec3 = await em.create(ProductRecipe, {
+          product: productType,
+          recipe: recipe,
+          amount: 5,
+        });
+        await em.persistAndFlush([productRec1, productRec2, productRec3]);
+
+        const neededProducts = await getMissingIngredients(user.id, recipe.id);
+        expect(neededProducts.length).equals(2);
+        expect(neededProducts.some((x) => x.id == productType.id)).true;
+        expect(neededProducts.some((x) => x.id == products[0].id)).false;
+        expect(neededProducts.some((x) => x.id == products[1].id)).true;
+      });
+    });
   });
 });

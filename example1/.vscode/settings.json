@@ -4,7 +4,7 @@
   "mochaExplorer.require": ["ts-node/register"],
   "mochaExplorer.env": { "NODE_ENV": "test" },
   "testExplorer.mergeSuites": true,
-  "mochaExplorer.exit": true
-  // "editor.formatOnSave": true,
-  // "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "mochaExplorer.exit": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
