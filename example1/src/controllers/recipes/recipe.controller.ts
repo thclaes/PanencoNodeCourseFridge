@@ -47,7 +47,7 @@ export class RecipeController {
   }
 
   @Patch("/:id")
-  @Authorized()
+  // @Authorized()
   @Representer(RecipeView)
   async update(
     @Param("id") id: string,

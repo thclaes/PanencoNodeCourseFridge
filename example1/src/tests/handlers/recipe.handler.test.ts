@@ -51,7 +51,7 @@ const productFixtures: Product[] = [
     type: "drink",
     name: "test1",
     size: 10,
-  } as Product,
+  } as Product
 ];
 
 describe("Handler tests recipe", () => {
@@ -262,5 +262,22 @@ describe("Handler tests recipe", () => {
         expect(await forkEm.findOne(Recipe, { id })).equal(null);
       });
     });
+
+    // it("should return missing products", async () => {
+    //   await RequestContext.createAsync(orm.em.fork(), async () => {
+    //     em.create(Product, [
+    //       {
+    //         type: "food",
+    //         name: "appel",
+    //         size: 5,
+    //       } as Product,
+    //       {
+    //         type: "food",
+    //         name: "test",
+    //         size: 5,
+    //       } as Product,
+    //     ])
+    //   });
+    // });
   });
 });
