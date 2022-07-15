@@ -62,6 +62,7 @@ describe("Integration tests", () => {
           .set("x-auth", auth.token)
           .expect(200);
         const { body: validUpdate } = re;
+        orm.em.clear();
         expect(
           (await orm.em.findOne(User, { id: createSuccessResponse.id })).email
         ).equals(updateUser.email);
