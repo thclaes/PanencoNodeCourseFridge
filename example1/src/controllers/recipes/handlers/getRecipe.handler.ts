@@ -25,7 +25,7 @@ export const get = async (id: string): Promise<RecipeView> => {
     name: recipe.name,
     description: recipe.description,
     owner: recipe.owner,
-    productAmount: productAmounts,
+    productAmounts: productAmounts,
   };
 
   return result;

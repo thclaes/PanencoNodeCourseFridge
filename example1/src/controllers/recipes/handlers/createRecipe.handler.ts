@@ -16,7 +16,7 @@ export const create = async (body: RecipeBody): Promise<Recipe> => {
   await em.persist(recipe);
 
   //throws error or executes
-  await createProductRecipe(recipe, body.productAmount);
+  await createProductRecipe(recipe, body.productAmounts);
 
   return recipe;
 };

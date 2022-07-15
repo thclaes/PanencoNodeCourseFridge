@@ -11,7 +11,7 @@ export const update = async (id: string, body: RecipeBody): Promise<Recipe> => {
   const res = recipe.assign(body);
 
   //throws error or executes
-  await createProductRecipe(recipe, body.productAmount);
+  await createProductRecipe(recipe, body.productAmounts);
 
   return res;
 };

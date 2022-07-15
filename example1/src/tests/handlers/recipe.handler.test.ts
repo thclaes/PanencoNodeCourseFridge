@@ -120,7 +120,7 @@ describe("Handler tests recipe", () => {
         await em.flush();
 
         const res = await get(recipes[1].id);
-        expect(res.productRecipes[0].product.id).equals(products[0].id);
+        expect(res.productAmounts[0].product.id).equals(products[0].id);
       });
     });
 
@@ -141,7 +141,7 @@ describe("Handler tests recipe", () => {
         const body = {
           name: "test recept",
           description: "Dit is een test recept",
-          productAmount: [
+          productAmounts: [
             {
               product_id: products[0].id,
               amount: 10,
@@ -164,7 +164,7 @@ describe("Handler tests recipe", () => {
         const body = {
           name: "test recept",
           description: "Dit is een test recept",
-          productAmount: [
+          productAmounts: [
             {
               product_id: v4(),
               amount: 10,
@@ -187,7 +187,7 @@ describe("Handler tests recipe", () => {
     //     const body = {
     //       name: "test recept",
     //       description: "Dit is een test recept",
-    //       productAmount: [
+    //       productAmounts: [
     //         {
     //           product_id: v4(),
     //           amount: 10,
@@ -208,7 +208,7 @@ describe("Handler tests recipe", () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
         const body1 = {
           description: "Dit is een test recept update",
-          productAmount: [
+          productAmounts: [
             {
               product_id: products[0].id,
               amount: 10,
@@ -233,31 +233,22 @@ describe("Handler tests recipe", () => {
         expect((await em.find(ProductRecipe, {})).length).equal(2);
 
         const body2 = {
-          productAmount: [
+          productAmounts: [
             {
               product_id: products[0].id,
-              amount: 15,
-            } as ProductAmount,
-            {
-              product_id: products[1].id,
-              amount: 20,
+              amount: 25,
             } as ProductAmount,
           ],
         } as RecipeBody;
         const id2 = recipes[0].id;
         await update(id2, body2);
 
-        expect((await em.find(ProductRecipe, {})).length).equal(2);
         expect(
           await (
-            await em.find(ProductRecipe, { amount: 15 })
+            await em.find(ProductRecipe, { amount: 25 })
           ).length
         ).equals(1);
-        expect(
-          await (
-            await em.find(ProductRecipe, { amount: 20 })
-          ).length
-        ).equals(1);
+        expect(await (await em.find(ProductRecipe, {})).length).equals(1);
       });
     });
 

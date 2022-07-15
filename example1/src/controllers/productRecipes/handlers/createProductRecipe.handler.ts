@@ -7,13 +7,13 @@ import { Recipe } from "../../../entities/recipe.entity";
 
 export const createProductRecipe = async (
   recipe: Recipe,
-  productAmount: ProductAmount[]
+  productAmounts: ProductAmount[]
 ): Promise<void> => {
   const em = RequestContext.getEntityManager();
   const unknownProducts: string[] = [];
 
   await Promise.all(
-    productAmount.map(async (productAmount) => {
+    productAmounts.map(async (productAmount) => {
       let product: Product;
 
       try {
@@ -36,21 +36,18 @@ export const createProductRecipe = async (
       }
 
       if (product && !product.owner) {
-        try {
-          const prRemove = await em.findOneOrFail(ProductRecipe, {
-            product: product,
-            recipe: recipe,
-          });
-          prRemove.amount = productAmount.amount;
-        } catch (e) {
-          const productRecipe = em.create(ProductRecipe, {
-            product: product,
-            recipe: recipe,
-            amount: productAmount.amount,
-          });
+        const existingProductRecipes = await em.find(ProductRecipe, {
+          recipe: recipe,
+        });
+        em.remove(existingProductRecipes);
 
-          em.persist(productRecipe);
-        }
+        const productRecipe = em.create(ProductRecipe, {
+          product: product,
+          recipe: recipe,
+          amount: productAmount.amount,
+        });
+
+        em.persist(productRecipe);
       }
     })
   );

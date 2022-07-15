@@ -19,5 +19,5 @@ export class RecipeView {
 
   @Expose()
   @Type(() => ProductAmountView)
-  public productAmount: ProductAmountView[];
+  public productAmounts: ProductAmountView[];
 }
