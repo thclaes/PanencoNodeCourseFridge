@@ -33,6 +33,7 @@ export class App {
       UserController,
       FridgeController,
       RecipeController,
+      ProductController
     ]);
     this.initializeSwagger();
 
