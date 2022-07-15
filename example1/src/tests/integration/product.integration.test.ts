@@ -10,7 +10,7 @@ import { ProductBody } from "../../contracts/product/product.body";
 import { UserBody } from "../../contracts/user.body";
 import { User } from "../../entities/user.entity";
 
-describe("Integration tests", () => {
+describe("Integration tests product", () => {
   describe("Product Tests", async () => {
     let request: supertest.SuperTest<supertest.Test>;
     let orm: MikroORM<PostgreSqlDriver>;
