@@ -1,9 +1,7 @@
 import { RequestContext } from "@mikro-orm/core";
 import { Conflict, NotFound } from "@panenco/papi";
 import { ProductBody } from "../../../contracts/product/product.body";
-import { Fridge } from "../../../entities/fridge.entity";
 import { Product } from "../../../entities/product.entity";
-import { User } from "../../../entities/user.entity";
 import { getFridge } from "../../fridges/handlers/getFridge.handler";
 import { get } from "../../users/handlers/getUser.handler";
 

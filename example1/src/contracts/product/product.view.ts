@@ -1,29 +1,15 @@
-import { Exclude, Expose } from 'class-transformer';
-import { IsEmail, IsNumber, IsString } from 'class-validator';
-import { Fridge } from '../../entities/fridge.entity';
-import { User } from '../../entities/user.entity';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { FridgeBaseView } from '../fridge.base.view';
+import { UserView } from "../user.view";
+import { ProductBaseView } from './product.base.view';
 
 @Exclude()
-export class ProductView {
+export class ProductView extends ProductBaseView{
   @Expose()
-  @IsNumber()
-  public id: number;
+  @Type(() => UserView)
+  public owner: UserView;
 
   @Expose()
-  @IsString()
-  public name: string;
-
-  @Expose()
-  @IsString()
-  public type: string;
-
-  @Expose()
-  @IsNumber()
-  public size: number;
-
-  @Expose()
-  public owner: User;
-
-  @Expose()
-  public fridge: Fridge;
+  @Type(() => FridgeBaseView)
+  public fridge: FridgeBaseView;
 }

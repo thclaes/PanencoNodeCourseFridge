@@ -1,18 +1,10 @@
 import { Exclude, Expose, Type } from "class-transformer";
-import { IsString } from "class-validator";
 import { ProductAmountView } from "./productAmount.view";
 import { UserView } from "../user.view";
+import { RecipeBaseView } from "./recipe.base.view";
 
 @Exclude()
-export class RecipeView {
-  @Expose()
-  @IsString()
-  public name: string;
-
-  @Expose()
-  @IsString()
-  public description: string;
-
+export class RecipeView extends RecipeBaseView {
   @Expose()
   @Type(() => UserView)
   public owner?: UserView;

@@ -1,7 +1,6 @@
 // import { RequestContext } from "@mikro-orm/core";
 // import { Product } from "../../../entities/product.entity";
 // import { ProductRecipe } from "../../../entities/productRecipe.entity";
-// import { Recipe } from "../../../entities/recipe.entity";
 
 // export const getMissingIngredients = async (
 //   userId: string,
@@ -9,9 +8,9 @@
 // ): Promise<Product[]> => {
 //   const em = RequestContext.getEntityManager();
 
-//   const storedProds = await em.find(Product, {
+//   const storedProds = (await em.find(Product, {
 //     owner: userId,
-//   });
+//   })).map((prod) => prod.name);
 
 //   const neededProds = await em.find(
 //     ProductRecipe,
@@ -23,7 +22,9 @@
 //     }
 //   );
 
-//   neededProds.reduce((prodRec) => {
-//     return
-//   })
+//   const res = neededProds.filter((prodRec) => {
+//     !storedProds.some((x)=>x==prodRec.product.name)
+//   }).map(prodRec => prodRec.product);
+
+//   return res;
 // };

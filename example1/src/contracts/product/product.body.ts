@@ -1,13 +1,12 @@
-import { Exclude, Expose, Transform } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { Exclude, Expose } from "class-transformer";
+import { IsEnum, IsNumber, IsString } from "class-validator";
 import { TypeEnum } from "../../Enums/typeEnum";
 
 @Exclude()
 export class ProductBody {
   @Expose()
-  @IsString()
-  //@Transform(({ type }) => TypeEnum[type])
-  public type: string;
+  @IsEnum(TypeEnum)
+  public type: TypeEnum;
 
   @Expose()
   @IsString()

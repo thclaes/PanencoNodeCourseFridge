@@ -1,3 +1,4 @@
+import { Nested } from "@panenco/papi";
 import { Exclude, Expose, Type } from "class-transformer";
 import { IsString } from "class-validator";
 import { User } from "../../entities/user.entity";
@@ -15,9 +16,9 @@ export class RecipeBody {
 
   @Expose()
   @Type(() => User)
-  public owner: User;
+  public owner?: User;
 
   @Expose()
-  @Type(() => ProductAmount)
+  @Nested(ProductAmount, true)
   public productAmounts: ProductAmount[];
 }
