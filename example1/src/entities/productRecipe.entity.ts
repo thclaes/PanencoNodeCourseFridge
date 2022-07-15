@@ -20,6 +20,6 @@ export class ProductRecipe extends BaseEntity<ProductRecipe, "id"> {
   @ManyToOne({ entity: () => Product })
   public product: Product;
 
-  @ManyToOne({ entity: () => Recipe })
+  @ManyToOne({ entity: () => Recipe})
   public recipe: Recipe;
 }

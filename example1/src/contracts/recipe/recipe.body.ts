@@ -15,7 +15,7 @@ export class RecipeBody {
 
   @Expose()
   @Type(() => User)
-  public owner: User;
+  public owner?: User;
 
   @Expose()
   @Type(() => ProductAmount)

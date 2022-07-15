@@ -10,7 +10,6 @@ import { SearchQuery } from "../../contracts/search.query";
 import "express-async-errors";
 import { getFridge } from "./handlers/getFridge.handler";
 import { getAllFridges } from "./handlers/getAllFridge.handler";
-import { ProductBody } from "../../contracts/product/product.body";
 import { FridgeBody } from "../../contracts/fridge.body";
 import { createFridge } from "./handlers/createFridge.handler";
 import { FridgeView } from "../../contracts/fridge.view";

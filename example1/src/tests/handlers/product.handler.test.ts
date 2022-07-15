@@ -18,14 +18,14 @@ import { deleteProduct } from "../../controllers/products/handlers/deleteProduct
 
 const getFridgeFixture = (nb: number): Fridge => {
     return {
-        location: "testLocation" + nb,
+        location: `testLocation${nb}`,
         capacity: nb * 100,
     } as Fridge
 }
 const getProductFixture = (nb: number): Product => {
     return {
         type: "testType",
-        name: "testName" + nb,
+        name: `testName${nb}`,
         size: nb
     } as Product
 }
@@ -113,7 +113,7 @@ describe("Handler tests", () => {
     await RequestContext.createAsync(orm.em.fork(), async () => {
           const newProduct = getProductFixture(10);
           try {
-            const res = await createProduct({...newProduct, fridgeId: v4(), userId: v4()} as any);
+            await createProduct({...newProduct, fridgeId: v4(), userId: v4()} as any);
           }
           catch (e) {
             expect(e.message == "User NotFound" || e.message == "Fridge NotFound").true;

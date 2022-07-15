@@ -9,9 +9,9 @@
 // ): Promise<Product[]> => {
 //   const em = RequestContext.getEntityManager();
 
-//   const storedProds = await em.find(Product, {
+//   const storedProds = (await em.find(Product, {
 //     owner: userId,
-//   });
+//   })).map();
 
 //   const neededProds = await em.find(
 //     ProductRecipe,
@@ -23,7 +23,7 @@
 //     }
 //   );
 
-//   neededProds.reduce((prodRec) => {
-//     return
-//   })
+//   neededProds.filter((prodRec) => {
+
+//   });
 // };
