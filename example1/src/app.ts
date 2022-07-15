@@ -15,6 +15,7 @@ import { MikroORM, RequestContext } from "@mikro-orm/core";
 import ormConfig from "./orm.config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { RecipeController } from "./controllers/recipes/recipe.controller";
+import { FridgeController } from "./controllers/fridges/fridge.controller";
 
 export class App {
   public orm: MikroORM<PostgreSqlDriver>;
@@ -29,6 +30,7 @@ export class App {
     this.initializeControllers([
       AuthController,
       UserController,
+      FridgeController,
       RecipeController,
     ]);
     this.initializeSwagger();
