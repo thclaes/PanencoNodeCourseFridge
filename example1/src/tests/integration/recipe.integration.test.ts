@@ -9,15 +9,17 @@ import { LoginBody } from "../../contracts/login.body";
 import { ProductBody } from "../../contracts/product/product.body";
 import { RecipeBody } from "../../contracts/recipe/recipe.body";
 import { UserBody } from "../../contracts/user.body";
+import { Product } from "../../entities/product.entity";
 import { User } from "../../entities/user.entity";
 
-describe("Integration tests product", () => {
+describe("Integration tests recipe", () => {
   describe("Product Tests", async () => {
     let request: supertest.SuperTest<supertest.Test>;
     let orm: MikroORM<PostgreSqlDriver>;
     let token;
     let user;
     let fridge;
+    let productType;
 
     before(async () => {
       const app = new App();
@@ -29,6 +31,9 @@ describe("Integration tests product", () => {
     beforeEach(async () => {
       await orm.em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
       await orm.getMigrator().up();
+
+      productType = await orm.em.create(Product, {type: "food", name: "tomato", size: 1});
+      await orm.em.persistAndFlush(productType);
 
       const body: UserBody = {
         name: "test",
@@ -67,15 +72,9 @@ describe("Integration tests product", () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
 
         //CREATE
-        const {body: createdProduct} = await request
-          .post(`/api/product/`)
-          .send({type: "food", name: "tomato", size: 1, fridgeId: fridge.id, userId: user.id} as ProductBody)
-          .set("x-auth", token)
-          .expect(StatusCode.created);
-
           const {body: createdRecipe} = await request
           .post(`/api/recipes/`)
-          .send({name: "pasta", description: "nice pasta", owner: user.id, productAmounts: [{product_id: createdProduct.id, amount: 1}]} as RecipeBody)
+          .send({name: "pasta", description: "nice pasta", ownerId: user.id, productAmounts: [{product_id: productType.id, amount: 1}]} as RecipeBody)
           .set("x-auth", token)
           .expect(StatusCode.created);
 
@@ -95,9 +94,9 @@ describe("Integration tests product", () => {
           //PATCH
           const {body: updatedRecipe} = await request
           .patch(`/api/recipes/` + createdRecipe.id)
-          .send({name: "large pasta", description: "nice pasta", owner: user.id, productAmounts: [{product_id: createdProduct.id, amount: 10}]} as RecipeBody)
+          .send({name: "large pasta", description: "nice pasta", owner: user.id, productAmounts: [{product_id: productType.id, amount: 10}]} as RecipeBody)
           .set("x-auth", token)
-          .expect(StatusCode.created);
+          .expect(StatusCode.ok);
           expect(updatedRecipe.name).equals("large pasta");
 
           //DELETE

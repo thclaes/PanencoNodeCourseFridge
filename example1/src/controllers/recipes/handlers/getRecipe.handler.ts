@@ -26,6 +26,7 @@ export const get = async (id: string): Promise<RecipeView> => {
     });
 
   const result: RecipeView = {
+    id: recipe.id,
     name: recipe.name,
     description: recipe.description,
     owner: recipe.owner,

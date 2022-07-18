@@ -15,8 +15,8 @@ export class RecipeBody {
   public description: string;
 
   @Expose()
-  @Type(() => User)
-  public owner?: User;
+  @IsString()
+  public ownerId?: string;
 
   @Expose()
   @Nested(ProductAmount, true)
