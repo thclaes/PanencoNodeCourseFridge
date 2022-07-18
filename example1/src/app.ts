@@ -42,6 +42,7 @@ export class App {
     });
 
     this.host.use(errorMiddleware);
+
   }
 
   listen() {

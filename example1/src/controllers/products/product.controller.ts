@@ -7,9 +7,9 @@ import {
 import "express-async-errors";
 import { ProductBody } from "../../contracts/product/product.body";
 import { getProduct } from "./handlers/getProduct.handler";
-import { createProduct } from "./handlers/createProduct.handler";
 import { ProductView } from "../../contracts/product/product.view";
 import { deleteProduct } from "./handlers/deleteProduct.handler";
+import { createProduct } from "./handlers/createProduct.handler";
 
 @JsonController("/product")
 export class ProductController {
