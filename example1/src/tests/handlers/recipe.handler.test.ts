@@ -92,7 +92,6 @@ describe("Handler tests recipe", () => {
 
       products = productFixtures.map((productFixture) => {
         const productDb = em.create(Product, productFixture)
-        //productDb.owner = userDb;
         return productDb;
       }
       );
