@@ -8,11 +8,9 @@ export const getMissingIngredients = async (
 ): Promise<[Product[], number]> => {
   const em = RequestContext.getEntityManager();
 
-  const storedProds = (
-    await em.find(Product, {
-      owner: userId,
-    })
-  ).map((prod) => prod.name);
+  const storedProds = await em.find(Product, {
+    owner: userId,
+  });
 
   const neededProds = await em.find(
     ProductRecipe,
@@ -25,9 +23,15 @@ export const getMissingIngredients = async (
   );
 
   const res = neededProds
-    .filter(
-      (prodRec) => !storedProds.some((x) => x == `${prodRec.product.name}`)
-    )
+    .filter((prodRec) => {
+      if (storedProds.some((x) => x.name == `${prodRec.product.name}`)) {
+        return !(
+          storedProds.find((x) => x.name === prodRec.product.name).size >=
+          prodRec.amount
+        );
+      }
+      return true;
+    })
     .map((prodRec) => prodRec.product);
 
   return [res, res.length];
