@@ -6,13 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from "routing-controllers";
-import {
-  Body,
-  ListRepresenter,
-  Representer,
-  StatusCode,
-} from "@panenco/papi";
+import { Body, ListRepresenter, Representer, StatusCode } from "@panenco/papi";
 import "express-async-errors";
 import { OpenAPI } from "routing-controllers-openapi";
 import { RecipeView } from "../../contracts/recipe/recipe.view";
@@ -22,6 +18,8 @@ import { get } from "./handlers/getRecipe.handler";
 import { getList } from "./handlers/getListRecipe.handler";
 import { update } from "./handlers/updateRecipe.handler";
 import { deleteRecipe } from "./handlers/deleteRecipe.handler";
+import { getMissingIngredients } from "./handlers/getMissing.handler";
+import { ProductView } from "../../contracts/product/product.view";
 
 @JsonController("/recipes")
 export class RecipeController {
@@ -44,6 +42,16 @@ export class RecipeController {
   @Representer(RecipeView)
   async get(@Param("id") id: string) {
     return get(id);
+  }
+
+  @Get("/:id/missingIngredients")
+  @Authorized()
+  @ListRepresenter(ProductView)
+  async getMissingIngredients(@Param("id") recipeId: string, @Req() req: any) {
+    const {
+      token: { userId },
+    } = req;
+    return getMissingIngredients(userId, recipeId);
   }
 
   @Patch("/:id")

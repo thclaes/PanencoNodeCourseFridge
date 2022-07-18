@@ -310,7 +310,10 @@ describe("Handler tests recipe", () => {
         });
         await em.persistAndFlush([productRec1, productRec2, productRec3]);
 
-        const neededProducts = await getMissingIngredients(user.id, recipe.id);
+        const [neededProducts, count] = await getMissingIngredients(
+          user.id,
+          recipe.id
+        );
         expect(neededProducts.length).equals(2);
         expect(neededProducts.some((x) => x.id == productType.id)).true;
         expect(neededProducts.some((x) => x.id == products[0].id)).false;
