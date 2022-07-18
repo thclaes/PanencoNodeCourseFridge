@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from "routing-controllers";
 import {
   Body,
@@ -22,14 +23,16 @@ import { get } from "./handlers/getRecipe.handler";
 import { getList } from "./handlers/getListRecipe.handler";
 import { update } from "./handlers/updateRecipe.handler";
 import { deleteRecipe } from "./handlers/deleteRecipe.handler";
+import { Request } from "express";
 
 @JsonController("/recipes")
 export class RecipeController {
   @Post()
   @Representer(RecipeView, StatusCode.created)
   @OpenAPI({ summary: "Create a new recipe" })
-  async create(@Body() body: RecipeBody) {
-    return create(body);
+  async create(@Body() body: RecipeBody, @Req() req: Request) {
+    const {token: {userId}} = req;
+    return create(body, userId);
   }
 
   @Get()
