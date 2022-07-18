@@ -26,11 +26,13 @@ import { Request } from "express";
 export class RecipeController {
   @Post()
   @Representer(RecipeView, StatusCode.created)
+  @Authorized()
   @OpenAPI({ summary: "Create a new recipe" })
   async create(@Body() body: RecipeBody, @Req() req: Request) {
     const {
       token: { userId },
     } = req;
+
     return create(body, userId);
   }
 
