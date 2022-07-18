@@ -17,24 +17,23 @@ import { User } from "../../entities/user.entity";
 import { deleteProduct } from "../../controllers/products/handlers/deleteProduct.handler";
 
 const getFridgeFixture = (nb: number): Fridge => {
-    return {
-        location: `testLocation${nb}`,
-        capacity: 100 + nb * 100,
-    } as Fridge
-}
+  return {
+    location: `testLocation${nb}`,
+    capacity: 100 + nb * 100,
+  } as Fridge;
+};
 const getProductFixture = (nb: number): Product => {
-    return {
-        type: "testType",
-        name: `testName${nb}`,
-        size: nb
-    } as Product
-}
+  return {
+    type: "testType",
+    name: `testName${nb}`,
+    size: nb,
+  } as Product;
+};
 const userFixture = {
-    name: "Cas",
-    email: "cas@mail.com",
-    password: "password"
-}
-
+  name: "Cas",
+  email: "cas@mail.com",
+  password: "password",
+};
 
 describe("Handler tests", () => {
   describe("Product Tests", () => {
@@ -53,23 +52,23 @@ describe("Handler tests", () => {
     });
 
     beforeEach(async () => {
-        await em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
-        await orm.getMigrator().up();
+      await em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
+      await orm.getMigrator().up();
 
-        const userDb = em.create(User, userFixture);
+      const userDb = em.create(User, userFixture);
 
-        for (let i = 0; i < nbFridges; i++) {
-            const fridgeDb = em.create(Fridge, getFridgeFixture(i));
-            em.persist(fridgeDb);
-            for (let j = 0; j < nbProductsPerFridge; j++) {
-                const productDb = em.create(Product, getProductFixture(j));
-                productDb.fridge = fridgeDb;
-                productDb.owner = userDb;
-                em.persist(productDb);
-            }
+      for (let i = 0; i < nbFridges; i++) {
+        const fridgeDb = em.create(Fridge, getFridgeFixture(i));
+        em.persist(fridgeDb);
+        for (let j = 0; j < nbProductsPerFridge; j++) {
+          const productDb = em.create(Product, getProductFixture(j));
+          productDb.fridge = fridgeDb;
+          productDb.owner = userDb;
+          em.persist(productDb);
         }
-        em.persist(userDb);
-        await em.flush();
+      }
+      em.persist(userDb);
+      await em.flush();
     });
 
     it("should get product", async () => {
@@ -97,61 +96,68 @@ describe("Handler tests", () => {
         const fridges = await em.find(Fridge, {});
         const users = await em.find(User, {});
 
-            const newProduct = getProductFixture(10);
-            const res = await createProduct({...newProduct, fridgeId: fridges[0].id} as any, users[0].id);
-    
-            expect(res.name).equals(newProduct.name);
-            expect(res.fridge.id).equals(fridges[0].id);
-            expect(res.owner.id).equals(users[0].id);
-    
-            const forkEm = orm.em.fork();
-            expect(await forkEm.count(Product, { name: newProduct.name })).equal(1);
+        const newProduct = getProductFixture(10);
+        const res = await createProduct(
+          { ...newProduct, fridgeId: fridges[0].id } as any,
+          users[0].id
+        );
+
+        expect(res.name).equals(newProduct.name);
+        expect(res.fridge.id).equals(fridges[0].id);
+        expect(res.owner.id).equals(users[0].id);
+
+        const forkEm = orm.em.fork();
+        expect(await forkEm.count(Product, { name: newProduct.name })).equal(1);
       });
-  });
-
-  it("should not create product when no space in fridge", async () => {
-    await RequestContext.createAsync(orm.em.fork(), async () => {
-      const fridges = await em.find(Fridge, {});
-      const users = await em.find(User, {});
-
-          const newProduct = getProductFixture(10);
-          newProduct.size = 1000;
-          try {
-            const res = await createProduct({...newProduct, fridgeId: fridges[0].id} as any, users[0].id);
-          }
-          catch (e) {
-            expect(e.message).equal("fridge full");
-          }
-  
-          const forkEm = orm.em.fork();
-          expect(await forkEm.count(Product, { name: newProduct.name })).equal(0);
     });
-});
 
-  it("should not create product with unknown FKs", async () => {
-    await RequestContext.createAsync(orm.em.fork(), async () => {
-          const newProduct = getProductFixture(10);
-          try {
-            await createProduct({...newProduct, fridgeId: v4()} as any, v4());
-          }
-          catch (e) {
-            expect(e.message == "User NotFound" || e.message == "Fridge NotFound").true;
-          }
-          const forkEm = orm.em.fork();
-          expect(await forkEm.findOne(Product, { name: newProduct.name })).equal(null);
-    });
-});
+    it("should not create product when no space in fridge", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const fridges = await em.find(Fridge, {});
+        const users = await em.find(User, {});
 
+        const newProduct = getProductFixture(10);
+        newProduct.size = 1000;
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const res = await createProduct(
+            { ...newProduct, fridgeId: fridges[0].id } as any,
+            users[0].id
+          );
+        } catch (e) {
+          expect(e.message).equal("fridge full");
+        }
 
-      it("should delete product", async () => {
-        await RequestContext.createAsync(orm.em.fork(), async () => {
-          const products = await em.find(Product, {});
-  
-          await deleteProduct(products[0].id);
-  
-          const forkEm = orm.em.fork();
-          expect(await forkEm.findOne(User, { id: products[0].id })).equal(null);
-        });
+        const forkEm = orm.em.fork();
+        expect(await forkEm.count(Product, { name: newProduct.name })).equal(0);
       });
+    });
+
+    it("should not create product with unknown FKs", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const newProduct = getProductFixture(10);
+        try {
+          await createProduct({ ...newProduct, fridgeId: v4() } as any, v4());
+        } catch (e) {
+          expect(e.message == "User NotFound" || e.message == "Fridge NotFound")
+            .true;
+        }
+        const forkEm = orm.em.fork();
+        expect(await forkEm.findOne(Product, { name: newProduct.name })).equal(
+          null
+        );
+      });
+    });
+
+    it("should delete product", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const products = await em.find(Product, {});
+
+        await deleteProduct(products[0].id);
+
+        const forkEm = orm.em.fork();
+        expect(await forkEm.findOne(User, { id: products[0].id })).equal(null);
+      });
+    });
   });
 });

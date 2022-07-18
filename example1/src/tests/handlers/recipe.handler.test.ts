@@ -298,7 +298,6 @@ describe("Handler tests recipe", () => {
         const productType = em.create(Product, {
           type: "food",
           name: "appel",
-          size: 5,
         } as Product);
         em.persist(productType);
 
@@ -332,6 +331,7 @@ describe("Handler tests recipe", () => {
         });
         await em.persistAndFlush([productRec1, productRec2, productRec3]);
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [neededProducts, count] = await getMissingIngredients(
           user.id,
           recipe.id
@@ -340,6 +340,90 @@ describe("Handler tests recipe", () => {
         expect(neededProducts.some((x) => x.id == productType.id)).true;
         expect(neededProducts.some((x) => x.id == products[0].id)).false;
         expect(neededProducts.some((x) => x.id == products[1].id)).true;
+      });
+    });
+
+    it("Should return missing products if size to small", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const user = await em.create(User, {
+          name: "testuser",
+          email: "testuser@mail.net",
+          password: "allowedpassword",
+        });
+        em.persist(user);
+
+        const productType = em.create(Product, {
+          type: "food",
+          name: "appel",
+        } as Product);
+        em.persist(productType);
+
+        const smallProductType = em.create(Product, {
+          type: "drink",
+          name: "cola",
+        } as Product);
+        em.persist(smallProductType);
+
+        const product = em.create(Product, {
+          type: "food",
+          name: "test",
+          size: 5,
+          owner: user,
+        });
+        em.persist(product);
+
+        const smallProduct = em.create(Product, {
+          type: "drink",
+          name: "cola",
+          size: 1,
+          owner: user,
+        });
+        em.persist(smallProduct);
+        await em.flush();
+
+        const recipe = await em.findOne(Recipe, { name: "Spaghetti" });
+
+        const productRec1 = em.create(ProductRecipe, {
+          product: products[0],
+          recipe: recipe,
+          amount: 5,
+        });
+
+        const productRec2 = await em.create(ProductRecipe, {
+          product: products[1],
+          recipe: recipe,
+          amount: 5,
+        });
+
+        const productRec3 = await em.create(ProductRecipe, {
+          product: productType,
+          recipe: recipe,
+          amount: 5,
+        });
+
+        const productRec4 = await em.create(ProductRecipe, {
+          product: smallProductType,
+          recipe: recipe,
+          amount: 5,
+        });
+
+        await em.persistAndFlush([
+          productRec1,
+          productRec2,
+          productRec3,
+          productRec4,
+        ]);
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [neededProducts, count] = await getMissingIngredients(
+          user.id,
+          recipe.id
+        );
+        expect(neededProducts.length).equals(3);
+        expect(neededProducts.some((x) => x.id == productType.id)).true;
+        expect(neededProducts.some((x) => x.id == products[0].id)).false;
+        expect(neededProducts.some((x) => x.id == products[1].id)).true;
+        expect(neededProducts.some((x) => x.id == smallProductType.id)).true;
       });
     });
   });
