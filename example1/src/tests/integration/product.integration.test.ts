@@ -8,14 +8,12 @@ import { FridgeBody } from "../../contracts/fridge.body";
 import { LoginBody } from "../../contracts/login.body";
 import { ProductBody } from "../../contracts/product/product.body";
 import { UserBody } from "../../contracts/user.body";
-import { User } from "../../entities/user.entity";
 
 describe("Integration tests product", () => {
   describe("Product Tests", async () => {
     let request: supertest.SuperTest<supertest.Test>;
     let orm: MikroORM<PostgreSqlDriver>;
     let token;
-    let user;
 
     before(async () => {
       const app = new App();
@@ -38,12 +36,11 @@ describe("Integration tests product", () => {
         password: "real secret stuff",
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { body: createdUser } = await request
         .post(`/api/users`)
         .send(body)
         .expect(StatusCode.created);
-
-      user = createdUser;
 
       const { body: auth } = await request
         .post("/api/auth/tokens")
@@ -55,52 +52,69 @@ describe("Integration tests product", () => {
 
     it("crud", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
-
         //CREATE
-        const {body: createdFridge} = await request
+        const { body: createdFridge } = await request
           .post(`/api/fridge/`)
-          .send({location: "testLocation", capacity: 100} as FridgeBody)
+          .send({ location: "testLocation", capacity: 100 } as FridgeBody)
           .set("x-auth", token)
           .expect(StatusCode.created);
 
-        const {body: createdProduct} = await request
+        const { body: createdProduct } = await request
           .post(`/api/product/`)
-          .send({type: "food", name: "steak", size: 1, fridgeId: createdFridge.id} as ProductBody)
+          .send({
+            type: "food",
+            name: "steak",
+            size: 1,
+            fridgeId: createdFridge.id,
+          } as ProductBody)
           .set("x-auth", token)
           .expect(StatusCode.created);
 
-          //GET
-          const {body: newProduct} = await request
-          .get(`/api/product/` + createdProduct.id)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { body: createdProductType } = await request
+          .post(`/api/product/type`)
+          .send({
+            type: "food",
+            name: "steak",
+            size: 1,
+            fridgeId: null,
+          } as ProductBody)
+          .set("x-auth", token)
+          .expect(StatusCode.created);
+
+        //GET
+        const { body: newProduct } = await request
+          .get(`/api/product/${createdProduct.id}`)
           .set("x-auth", token)
           .expect(StatusCode.ok);
-          
-          expect(newProduct.fridge.id).equal(createdFridge.id);
 
-          const {body: newFridge} = await request
-          .get(`/api/fridge/` + createdFridge.id)
+        expect(newProduct.fridge.id).equal(createdFridge.id);
+
+        const { body: newFridge } = await request
+          .get(`/api/fridge/${createdFridge.id}`)
           .set("x-auth", token)
           .expect(StatusCode.ok);
 
-          expect(newFridge.products[0].id).equal(createdProduct.id);
+        expect(newFridge.products[0].id).equal(createdProduct.id);
 
-          const {body: newFridges} = await request
+        const { body: newFridges } = await request
           .get(`/api/fridge/`)
           .set("x-auth", token)
           .expect(StatusCode.ok);
-          expect(newFridges.items[0].products[0].id).equal(createdProduct.id);
+        expect(newFridges.items[0].products[0].id).equal(createdProduct.id);
 
-          //DELETE
-          const {body: msg} = await request
-          .delete(`/api/product/` + createdProduct.id)
+        //DELETE
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { body: msg } = await request
+          .delete(`/api/product/${createdProduct.id}`)
           .set("x-auth", token)
           .expect(StatusCode.noContent);
-          
-          const {body: nothing} = await request
-          .get(`/api/product/` + createdProduct.id)
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { body: nothing } = await request
+          .get(`/api/product/${createdProduct.id}`)
           .set("x-auth", token)
           .expect(StatusCode.notFound);
-        
       });
     });
   });

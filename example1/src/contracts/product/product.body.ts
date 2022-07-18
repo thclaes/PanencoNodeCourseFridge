@@ -1,5 +1,5 @@
 import { Exclude, Expose } from "class-transformer";
-import { IsEnum, IsNumber, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { TypeEnum } from "../../Enums/typeEnum";
 
 @Exclude()
@@ -18,5 +18,6 @@ export class ProductBody {
 
   @Expose()
   @IsString()
-  public fridgeId: string;
+  @IsOptional()
+  public fridgeId?: string;
 }
