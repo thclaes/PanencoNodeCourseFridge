@@ -20,14 +20,18 @@ import { update } from "./handlers/updateRecipe.handler";
 import { deleteRecipe } from "./handlers/deleteRecipe.handler";
 import { getMissingIngredients } from "./handlers/getMissing.handler";
 import { ProductView } from "../../contracts/product/product.view";
+import { Request } from "express";
 
 @JsonController("/recipes")
 export class RecipeController {
   @Post()
   @Representer(RecipeView, StatusCode.created)
   @OpenAPI({ summary: "Create a new recipe" })
-  async create(@Body() body: RecipeBody) {
-    return create(body);
+  async create(@Body() body: RecipeBody, @Req() req: Request) {
+    const {
+      token: { userId },
+    } = req;
+    return create(body, userId);
   }
 
   @Get()

@@ -22,6 +22,12 @@ import { ProductAmount } from "../../contracts/recipe/productAmount";
 import { ProductRecipe } from "../../entities/productRecipe.entity";
 import { getMissingIngredients } from "../../controllers/recipes/handlers/getMissing.handler";
 
+
+const userFixture = {
+  name: "Cas",
+  email: "cas@mail.com",
+  password: "password"
+}
 const recipeFixtures: Recipe[] = [
   {
     name: "Gesneden appel",
@@ -35,10 +41,6 @@ const recipeFixtures: Recipe[] = [
       email: "fredje@hotmail.com",
       password: "randompass",
     } as User,
-  } as Recipe,
-  {
-    name: "Spaghetti",
-    description: "test-user+1@panenco.com",
   } as Recipe,
 ];
 
@@ -54,6 +56,11 @@ const productFixtures: Product[] = [
     size: 10,
   } as Product,
 ];
+const productWithOwnerFixture =   {
+  type: "drink",
+  name: "test2",
+  size: 10,
+} as Product
 
 describe("Handler tests recipe", () => {
   describe("recipe Tests", () => {
@@ -75,15 +82,25 @@ describe("Handler tests recipe", () => {
       await em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
       await orm.getMigrator().up();
 
+      const userDb = em.create(User, userFixture);
+      em.persist(userDb);
+
       recipeFixtures.forEach((recipe) => {
         const recipeDb = em.create(Recipe, recipe);
+        recipeDb.owner = userDb;
         em.persist(recipeDb);
       });
 
-      products = productFixtures.map((productDb) =>
-        em.create(Product, productDb)
+      products = productFixtures.map((productFixture) => {
+        const productDb = em.create(Product, productFixture)
+        return productDb;
+      }
       );
       em.persist(products);
+
+      const productDbWithOwner = em.create(Product, productWithOwnerFixture);
+      productDbWithOwner.owner = userDb;
+      em.persist(productDbWithOwner);
 
       await em.flush();
       recipes = await em.find(Recipe, {});
@@ -105,8 +122,7 @@ describe("Handler tests recipe", () => {
 
         expect(res.name == recipes[1].name).true;
         expect(res.description == recipes[1].description).true;
-        // check if containing users?
-        // check if containing recipes?
+        expect(res.owner.name == userFixture.name).true;
       });
     });
 
@@ -149,10 +165,12 @@ describe("Handler tests recipe", () => {
             } as ProductAmount,
           ],
         } as RecipeBody;
-        const res = await create(body);
+        const users = await em.find(User, {});
+        const res = await create(body, users[0].id);
 
         expect(res.name).equals(body.name);
         expect(res.description).equals(body.description);
+        expect(res.owner.name).equals(userFixture.name);
 
         const forkEm = orm.em.fork();
         expect(await forkEm.count(Recipe, { name: body.name })).equal(1);
@@ -173,7 +191,8 @@ describe("Handler tests recipe", () => {
           ],
         } as RecipeBody;
         try {
-          await create(body);
+          const users = await em.find(User, {});
+          await create(body, users[0].id);
         } catch (error) {
           expect(error.message).contain("Following products do not exist");
           return;
@@ -182,28 +201,29 @@ describe("Handler tests recipe", () => {
       });
     });
 
-    // To write when user-part is done
-    // it("should not create recipe if product has owner", async () => {
-    //   await RequestContext.createAsync(orm.em.fork(), async () => {
-    //     const body = {
-    //       name: "test recept",
-    //       description: "Dit is een test recept",
-    //       productAmounts: [
-    //         {
-    //           product_id: v4(),
-    //           amount: 10,
-    //         } as ProductAmount,
-    //       ],
-    //     } as RecipeBody;
-    //     try {
-    //       await create(body);
-    //     } catch (error) {
-    //       expect(error.message).contain("Following products do not exist");
-    //       return;
-    //     }
-    //     expect(true, "should have thrown an error").false;
-    //   });
-    // });
+    it("should not create recipe if product has owner", async () => {
+      await RequestContext.createAsync(orm.em.fork(), async () => {
+        const prod = await em.find(Product, {$not: {owner: null}})
+        const body = {
+          name: "test recept",
+          description: "Dit is een test recept",
+          productAmounts: [
+            {
+              product_id: prod[0].id,
+              amount: 10,
+            } as ProductAmount,
+          ],
+        } as RecipeBody;
+        try {
+          const users = await em.find(User, {});
+          await create(body, users[0].id);
+        } catch (error) {
+          expect(error.message).contain("Following products do not exist");
+          return;
+        }
+        expect(true, "should have thrown an error").false;
+      });
+    });
 
     it("should update recipe", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
