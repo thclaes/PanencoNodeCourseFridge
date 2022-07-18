@@ -4,6 +4,10 @@ import { IsString } from "class-validator";
 export class RecipeBaseView {
   @Expose()
   @IsString()
+  public id: string;
+
+  @Expose()
+  @IsString()
   public name: string;
 
   @Expose()
