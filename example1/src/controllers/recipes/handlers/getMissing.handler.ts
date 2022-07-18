@@ -5,7 +5,7 @@ import { ProductRecipe } from "../../../entities/productRecipe.entity";
 export const getMissingIngredients = async (
   userId: string,
   recipeId: string
-): Promise<Product[]> => {
+): Promise<[Product[], number]> => {
   const em = RequestContext.getEntityManager();
 
   const storedProds = (
@@ -25,10 +25,10 @@ export const getMissingIngredients = async (
   );
 
   const res = neededProds
-    .filter((prodRec) =>
-      storedProds.some((x) => x !== `${prodRec.product.name}`)
+    .filter(
+      (prodRec) => !storedProds.some((x) => x == `${prodRec.product.name}`)
     )
     .map((prodRec) => prodRec.product);
 
-  return res;
+  return [res, res.length];
 };

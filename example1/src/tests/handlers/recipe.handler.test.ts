@@ -22,12 +22,11 @@ import { ProductAmount } from "../../contracts/recipe/productAmount";
 import { ProductRecipe } from "../../entities/productRecipe.entity";
 import { getMissingIngredients } from "../../controllers/recipes/handlers/getMissing.handler";
 
-
 const userFixture = {
   name: "Cas",
   email: "cas@mail.com",
-  password: "password"
-}
+  password: "password",
+};
 const recipeFixtures: Recipe[] = [
   {
     name: "Gesneden appel",
@@ -41,6 +40,10 @@ const recipeFixtures: Recipe[] = [
       email: "fredje@hotmail.com",
       password: "randompass",
     } as User,
+  } as Recipe,
+  {
+    name: "Spaghetti",
+    description: "lekkere spaghetti",
   } as Recipe,
 ];
 
@@ -56,11 +59,11 @@ const productFixtures: Product[] = [
     size: 10,
   } as Product,
 ];
-const productWithOwnerFixture =   {
+const productWithOwnerFixture = {
   type: "drink",
   name: "test2",
   size: 10,
-} as Product
+} as Product;
 
 describe("Handler tests recipe", () => {
   describe("recipe Tests", () => {
@@ -92,10 +95,9 @@ describe("Handler tests recipe", () => {
       });
 
       products = productFixtures.map((productFixture) => {
-        const productDb = em.create(Product, productFixture)
+        const productDb = em.create(Product, productFixture);
         return productDb;
-      }
-      );
+      });
       em.persist(products);
 
       const productDbWithOwner = em.create(Product, productWithOwnerFixture);
@@ -203,7 +205,7 @@ describe("Handler tests recipe", () => {
 
     it("should not create recipe if product has owner", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
-        const prod = await em.find(Product, {$not: {owner: null}})
+        const prod = await em.find(Product, { $not: { owner: null } });
         const body = {
           name: "test recept",
           description: "Dit is een test recept",
@@ -330,7 +332,10 @@ describe("Handler tests recipe", () => {
         });
         await em.persistAndFlush([productRec1, productRec2, productRec3]);
 
-        const neededProducts = await getMissingIngredients(user.id, recipe.id);
+        const [neededProducts, count] = await getMissingIngredients(
+          user.id,
+          recipe.id
+        );
         expect(neededProducts.length).equals(2);
         expect(neededProducts.some((x) => x.id == productType.id)).true;
         expect(neededProducts.some((x) => x.id == products[0].id)).false;

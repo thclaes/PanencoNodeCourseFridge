@@ -32,7 +32,11 @@ describe("Integration tests recipe", () => {
       await orm.em.execute(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
       await orm.getMigrator().up();
 
-      productType = await orm.em.create(Product, {type: "food", name: "tomato", size: 1});
+      productType = await orm.em.create(Product, {
+        type: "food",
+        name: "tomato",
+        size: 1,
+      });
       await orm.em.persistAndFlush(productType);
 
       const body: UserBody = {
@@ -59,57 +63,69 @@ describe("Integration tests recipe", () => {
 
       token = auth.token;
 
-      const {body: createdFridge} = await request
-      .post(`/api/fridge/`)
-      .send({location: "testLocation", capacity: 100} as FridgeBody)
-      .set("x-auth", token)
-      .expect(StatusCode.created);
+      const { body: createdFridge } = await request
+        .post(`/api/fridge/`)
+        .send({ location: "testLocation", capacity: 100 } as FridgeBody)
+        .set("x-auth", token)
+        .expect(StatusCode.created);
 
       fridge = createdFridge;
     });
 
     it("crud", async () => {
       await RequestContext.createAsync(orm.em.fork(), async () => {
-
         //CREATE
-          const {body: createdRecipe} = await request
+        const { body: createdRecipe } = await request
           .post(`/api/recipes/`)
-          .send({name: "pasta", description: "nice pasta", ownerId: user.id, productAmounts: [{product_id: productType.id, amount: 1}]} as RecipeBody)
+          .send({
+            name: "pasta",
+            description: "nice pasta",
+            productAmounts: [{ product_id: productType.id, amount: 1 }],
+          } as RecipeBody)
           .set("x-auth", token)
           .expect(StatusCode.created);
 
-          //GET
-          const {body: newRecipe} = await request
+        //GET
+        const { body: newRecipe } = await request
           .get(`/api/recipes/` + createdRecipe.id)
           .set("x-auth", token)
           .expect(StatusCode.ok);
-          expect(newRecipe.name).equals("pasta");
-        
-          const {body: newRecipes} = await request
+        expect(newRecipe.name).equals("pasta");
+
+        const { body: newRecipes } = await request
           .get(`/api/recipes/`)
           .set("x-auth", token)
           .expect(StatusCode.ok);
-          expect(newRecipes.items[0].name).equals("pasta");
+        expect(newRecipes.items[0].name).equals("pasta");
 
-          //PATCH
-          const {body: updatedRecipe} = await request
-          .patch(`/api/recipes/` + createdRecipe.id)
-          .send({name: "large pasta", description: "nice pasta", owner: user.id, productAmounts: [{product_id: productType.id, amount: 10}]} as RecipeBody)
+        const { body: missingProducts } = await request
+          .get(`/api/recipes/${createdRecipe.id}/missingIngredients`)
           .set("x-auth", token)
           .expect(StatusCode.ok);
-          expect(updatedRecipe.name).equals("large pasta");
+        expect(missingProducts.items[0].name).equals("tomato");
 
-          //DELETE
-          const {body: msg} = await request
+        //PATCH
+        const { body: updatedRecipe } = await request
+          .patch(`/api/recipes/` + createdRecipe.id)
+          .send({
+            name: "large pasta",
+            description: "nice pasta",
+            productAmounts: [{ product_id: productType.id, amount: 10 }],
+          } as RecipeBody)
+          .set("x-auth", token)
+          .expect(StatusCode.ok);
+        expect(updatedRecipe.name).equals("large pasta");
+
+        //DELETE
+        const { body: msg } = await request
           .delete(`/api/recipes/` + createdRecipe.id)
           .set("x-auth", token)
           .expect(StatusCode.noContent);
-          
-          const {body: nothing} = await request
+
+        const { body: nothing } = await request
           .get(`/api/recipes/` + createdRecipe.id)
           .set("x-auth", token)
           .expect(StatusCode.notFound);
-        
       });
     });
   });
