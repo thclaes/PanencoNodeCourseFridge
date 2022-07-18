@@ -19,7 +19,7 @@ import { deleteProduct } from "../../controllers/products/handlers/deleteProduct
 const getFridgeFixture = (nb: number): Fridge => {
     return {
         location: `testLocation${nb}`,
-        capacity: nb * 100,
+        capacity: 100 + nb * 100,
     } as Fridge
 }
 const getProductFixture = (nb: number): Product => {
@@ -98,7 +98,7 @@ describe("Handler tests", () => {
         const users = await em.find(User, {});
 
             const newProduct = getProductFixture(10);
-            const res = await createProduct({...newProduct, fridgeId: fridges[0].id, userId: users[0].id} as any);
+            const res = await createProduct({...newProduct, fridgeId: fridges[0].id} as any, users[0].id);
     
             expect(res.name).equals(newProduct.name);
             expect(res.fridge.id).equals(fridges[0].id);
@@ -117,7 +117,7 @@ describe("Handler tests", () => {
           const newProduct = getProductFixture(10);
           newProduct.size = 1000;
           try {
-            const res = await createProduct({...newProduct, fridgeId: fridges[0].id, userId: users[0].id} as any);
+            const res = await createProduct({...newProduct, fridgeId: fridges[0].id} as any, users[0].id);
           }
           catch (e) {
             expect(e.message).equal("fridge full");
@@ -132,7 +132,7 @@ describe("Handler tests", () => {
     await RequestContext.createAsync(orm.em.fork(), async () => {
           const newProduct = getProductFixture(10);
           try {
-            await createProduct({...newProduct, fridgeId: v4(), userId: v4()} as any);
+            await createProduct({...newProduct, fridgeId: v4()} as any, v4());
           }
           catch (e) {
             expect(e.message == "User NotFound" || e.message == "Fridge NotFound").true;

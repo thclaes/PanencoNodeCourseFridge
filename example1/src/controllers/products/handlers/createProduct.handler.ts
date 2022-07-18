@@ -5,10 +5,10 @@ import { Product } from "../../../entities/product.entity";
 import { getFridge } from "../../fridges/handlers/getFridge.handler";
 import { get } from "../../users/handlers/getUser.handler";
 
-export const createProduct = async (body: ProductBody): Promise<Product> => {
+export const createProduct = async (body: ProductBody, userId: string): Promise<Product> => {
   const em = RequestContext.getEntityManager();
   
-  const {userId, fridgeId, ...bodyWithoutFK} = body;
+  const {fridgeId, ...bodyWithoutFK} = body;
 
   const fridge = await getFridge(fridgeId);
   const products = Array.from(fridge.products);
