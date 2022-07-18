@@ -25,8 +25,8 @@ export class ProductController {
   @Authorized()
   @Representer(ProductView, StatusCode.created)
   async createProduct(@Body() body: ProductBody, @Req() req: Request) {
-    const {token: {id}} = req
-    return createProduct(body);
+    const {token: {userId}} = req;
+    return createProduct(body, userId);
   }
 
   @Delete("/:id")

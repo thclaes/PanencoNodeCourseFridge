@@ -65,7 +65,7 @@ describe("Integration tests product", () => {
 
         const {body: createdProduct} = await request
           .post(`/api/product/`)
-          .send({type: "food", name: "steak", size: 1, fridgeId: createdFridge.id, userId: user.id} as ProductBody)
+          .send({type: "food", name: "steak", size: 1, fridgeId: createdFridge.id} as ProductBody)
           .set("x-auth", token)
           .expect(StatusCode.created);
 
